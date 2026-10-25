@@ -61,7 +61,7 @@ def search(query: str, k: int = 5, conn=None) -> List[FulltextSearchResult]:
                 FROM chunks c
                 JOIN documents d ON c.document_id = d.id
                 WHERE c.tsv @@ %s::tsquery
-                ORDER BY score DESC
+                ORDER BY score DESC, c.id ASC
                 LIMIT %s;
             """
             cur.execute(sql, (or_query_text, or_query_text, k))

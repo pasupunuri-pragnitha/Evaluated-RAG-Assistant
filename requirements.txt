@@ -18,6 +18,8 @@ google-generativeai>=0.4.1
 
 # Utilities
 python-dotenv>=1.0.1
+rank-bm25>=0.2.2
+snowballstemmer>=3.1.1
 
 # Testing
 pytest>=8.1.0

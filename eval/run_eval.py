@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Set
 
 from app.config import settings
 from db.connection import get_db_connection
+from retrieval.bm25 import search as bm25_search
 from retrieval.fulltext import search as fulltext_search
 from retrieval.hybrid import search as hybrid_search
 from retrieval.vector import get_embedder, search as vector_search
@@ -185,8 +186,18 @@ def run_evaluation(
                 top_score = round(results[0].score, 4) if results else 0.0
                 v_res = vector_search(query=q_text, k=1, conn=conn)
                 top_vector_score = round(v_res[0].score, 4) if v_res else 0.0
+            elif retriever == "bm25":
+                results = bm25_search(query=q_text, k=k, conn=conn)
+                top_score = round(results[0].bm25_score, 4) if results else 0.0
+                v_res = vector_search(query=q_text, k=1, conn=conn)
+                top_vector_score = round(v_res[0].score, 4) if v_res else 0.0
             elif retriever == "hybrid":
-                h_res = hybrid_search(query=q_text, k=k, pool=pool, rrf_k=rrf_k, conn=conn)
+                h_res = hybrid_search(query=q_text, k=k, pool=pool, rrf_k=rrf_k, keyword_retriever="fulltext", conn=conn)
+                results = h_res.results
+                top_vector_score = round(h_res.top_vector_score, 4)
+                top_score = round(results[0].rrf_score, 6) if results else 0.0
+            elif retriever == "hybrid-bm25":
+                h_res = hybrid_search(query=q_text, k=k, pool=pool, rrf_k=rrf_k, keyword_retriever="bm25", conn=conn)
                 results = h_res.results
                 top_vector_score = round(h_res.top_vector_score, 4)
                 top_score = round(results[0].rrf_score, 6) if results else 0.0
@@ -202,7 +213,7 @@ def run_evaluation(
                     "source_path": r.source_path,
                     "title": r.title,
                     "heading_path": r.heading_path,
-                    "score": round(r.score, 6 if retriever == "hybrid" else 4),
+                    "score": round(r.score, 6 if "hybrid" in retriever else 4),
                     "is_match": r.source_path in expected_sources_set,
                 }
                 if hasattr(r, "vector_score"):
@@ -211,6 +222,10 @@ def run_evaluation(
                     chunk_dict["vector_rank"] = r.vector_rank
                 if hasattr(r, "fulltext_rank"):
                     chunk_dict["fulltext_rank"] = r.fulltext_rank
+                if hasattr(r, "bm25_rank"):
+                    chunk_dict["bm25_rank"] = r.bm25_rank
+                if hasattr(r, "bm25_score"):
+                    chunk_dict["bm25_score"] = round(r.bm25_score, 4) if r.bm25_score is not None else None
                 retrieved_chunks.append(chunk_dict)
 
             q_res: Dict[str, Any] = {
@@ -312,10 +327,11 @@ def run_evaluation(
         "embedding_device": embedding_device,
         "config": {
             "retriever": retriever,
+            "keyword_retriever": "bm25" if retriever == "hybrid-bm25" else ("fulltext" if retriever == "hybrid" else None),
             "k": k,
             "min_score": min_score,
-            "pool": pool if retriever == "hybrid" else None,
-            "rrf_k": rrf_k if retriever == "hybrid" else None,
+            "pool": pool if "hybrid" in retriever else None,
+            "rrf_k": rrf_k if "hybrid" in retriever else None,
             "embedding_model": settings.embedding_model_name,
             "llm_model": settings.llm_model,
         },
@@ -396,9 +412,9 @@ def main():
     parser.add_argument(
         "--retriever",
         type=str,
-        choices=["vector", "fulltext", "hybrid"],
+        choices=["vector", "fulltext", "hybrid", "bm25", "hybrid-bm25"],
         default="vector",
-        help="Retriever type: vector, fulltext, or hybrid (default: vector)",
+        help="Retriever type: vector, fulltext, hybrid, bm25, or hybrid-bm25 (default: vector)",
     )
     parser.add_argument("-k", type=int, default=5, help="Number of retrieval chunks (default: 5)")
     parser.add_argument(

@@ -79,7 +79,7 @@ def test_rrf_merge_order_and_dedupe():
 def test_rrf_merge_ties():
     # Item 1: vector rank 1 only -> 1/(60+1) = 1/61
     # Item 2: fulltext rank 1 only -> 1/(60+1) = 1/61
-    # Both have exact same RRF score. Tie breaker prioritizes vector pool match.
+    # Both have exact same RRF score. Tie breaker breaks by chunk_id.
     v_list = [DummyVectorResult(chunk_id="item-vec", score=0.8)]
     f_list = [DummyFulltextResult(chunk_id="item-ft", fulltext_rank=1)]
 
@@ -87,9 +87,9 @@ def test_rrf_merge_ties():
 
     assert len(merged) == 2
     assert merged[0].rrf_score == merged[1].rrf_score
-    # Vector match preferred on score tie
-    assert merged[0].chunk_id == "item-vec"
-    assert merged[1].chunk_id == "item-ft"
+    # Broken by chunk_id ("item-ft" < "item-vec")
+    assert merged[0].chunk_id == "item-ft"
+    assert merged[1].chunk_id == "item-vec"
 
     # Tie between two items with identical ranks: broken by chunk_id
     f_list_ties = [
@@ -123,3 +123,23 @@ def test_hybrid_search_returns_top_vector_score(monkeypatch):
     assert top_vec == 0.8842
     assert len(results) == 2
     assert results[0].chunk_id == "chunk-1"
+
+
+def test_hybrid_search_with_bm25_keyword_retriever(monkeypatch):
+    mock_vec = [
+        DummyVectorResult(chunk_id="chunk-v1", score=0.88),
+    ]
+    mock_bm25 = [
+        DummyFulltextResult(chunk_id="chunk-b1", score=5.2, fulltext_rank=1),
+    ]
+
+    monkeypatch.setattr(hybrid_mod, "vector_search", lambda query, k, conn: mock_vec)
+    monkeypatch.setattr(hybrid_mod, "bm25_search", lambda query, k, conn: mock_bm25)
+
+    resp = search("test query", k=2, pool=50, rrf_k=60, keyword_retriever="bm25")
+    assert isinstance(resp, HybridResponse)
+    assert len(resp.results) == 2
+    # chunk-b1 has fulltext_rank/bm25_rank recorded
+    ids = [r.chunk_id for r in resp.results]
+    assert "chunk-v1" in ids
+    assert "chunk-b1" in ids
