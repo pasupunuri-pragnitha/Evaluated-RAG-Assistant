@@ -37,3 +37,6 @@ sentence_transformers/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Evaluation results
+eval/results/
