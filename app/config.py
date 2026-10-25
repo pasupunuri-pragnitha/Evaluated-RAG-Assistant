@@ -1,6 +1,8 @@
 import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+REFUSAL_MESSAGE = "I don't know based on the documentation."
+
 
 class Settings(BaseSettings):
     postgres_user: str = "postgres"
@@ -15,9 +17,10 @@ class Settings(BaseSettings):
     llm_model: str = "llama31-rag"
     llm_api_key: str = "ollama"
     llm_timeout_seconds: int = 300
+    min_score: float = 0.60
 
     app_host: str = "0.0.0.0"
-    app_port: int = 8000
+    app_port: int = 8001
 
     # Documents to exclude (changelogs, contributor rosters, meta files)
     exclude_docs: list[str] = [
