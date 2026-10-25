@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     source_path TEXT NOT NULL UNIQUE,
     title TEXT NOT NULL,
+    content_hash TEXT,
     version INT NOT NULL DEFAULT 1,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -18,6 +19,7 @@ CREATE TABLE IF NOT EXISTS chunks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
     chunk_index INT NOT NULL,
+    heading_path TEXT,
     content TEXT NOT NULL,
     token_count INT NOT NULL DEFAULT 0,
     embedding vector(384),
