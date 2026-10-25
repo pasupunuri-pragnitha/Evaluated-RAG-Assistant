@@ -3,6 +3,7 @@
 A production-grade Retrieval-Augmented Generation (RAG) assistant built on PostgreSQL + pgvector, FastAPI, sentence-transformers (`BAAI/bge-small-en-v1.5`), and Gemini.
 
 ## Tech Stack
+
 - **Runtime**: Python 3.11
 - **API**: FastAPI & Uvicorn
 - **Vector Database**: PostgreSQL 16 + pgvector (HNSW indexing with cosine distance)
@@ -13,6 +14,7 @@ A production-grade Retrieval-Augmented Generation (RAG) assistant built on Postg
 - **Testing**: pytest
 
 ## Project Structure
+
 ```text
 Evaluated-RAG-Assistant/
 ├── app/              # FastAPI application endpoints and schemas
@@ -22,6 +24,7 @@ Evaluated-RAG-Assistant/
 ├── ui/               # User interface (Phase 2+)
 ├── tests/            # Test suite (chunker, search, API)
 ├── db/               # Database initialization SQL scripts
+├── scripts/          # Helper scripts (docs downloader)
 ├── data/
 │   └── docs/         # Source Markdown knowledge documents
 ├── docker-compose.yml# Container orchestration for pgvector service
@@ -31,15 +34,33 @@ Evaluated-RAG-Assistant/
 ```
 
 ## Quick Start
+
 1. Copy `.env.example` to `.env` and fill in credentials:
+
    ```bash
    cp .env.example .env
    ```
+
 2. Start the PostgreSQL + pgvector container:
+
    ```bash
    docker compose up -d
    ```
+
 3. Install dependencies:
+
    ```bash
    pip install -r requirements.txt
+   ```
+
+4. Download FastAPI documentation (shallow clone):
+
+   ```bash
+   python scripts/download_docs.py
+   ```
+
+5. Ingest documentation into PostgreSQL:
+
+   ```bash
+   python -m ingest.run --docs data/docs
    ```

@@ -19,6 +19,16 @@ class Settings(BaseSettings):
     app_host: str = "0.0.0.0"
     app_port: int = 8000
 
+    # Documents to exclude (changelogs, contributor rosters, meta files)
+    exclude_docs: list[str] = [
+        "release-notes.md",
+        "contributing.md",
+        "fastapi-people.md",
+        "translations.md",
+        "translation-banner.md",
+        "_llm-test.md",
+    ]
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

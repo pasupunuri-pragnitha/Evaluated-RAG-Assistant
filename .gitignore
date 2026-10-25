@@ -21,6 +21,7 @@ htmlcov/
 # Model & Data caches
 .cache/
 data/cache/
+data/docs/fastapi/
 models/
 huggingface/
 .huggingface/

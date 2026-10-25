@@ -14,7 +14,8 @@ class ChunkData:
 class MarkdownHeadingChunker:
     """
     Chunks Markdown documents by heading hierarchy, maintaining ~400 token chunks
-    with ~50 token overlap, and ensures chunks never exceed the model's 512 token limit.
+    with ~50 token overlap, ensures chunks never exceed the model's 512 token limit,
+    and merges tiny/heading-only chunks (< 80 tokens) into sibling chunks.
     """
 
     def __init__(
@@ -23,13 +24,17 @@ class MarkdownHeadingChunker:
         target_tokens: int = 400,
         overlap_tokens: int = 50,
         max_tokens: int = 500,  # leaves headroom for special tokens [CLS], [SEP]
+        min_tokens: int = 80,
     ):
         self.tokenizer = tokenizer
         self.target_tokens = target_tokens
         self.overlap_tokens = overlap_tokens
         self.max_tokens = max_tokens
+        self.min_tokens = min_tokens
 
     def count_tokens(self, text: str) -> int:
+        if not text:
+            return 0
         return len(self.tokenizer.encode(text, add_special_tokens=False))
 
     def _split_into_paragraphs(self, text: str) -> List[str]:
@@ -48,27 +53,22 @@ class MarkdownHeadingChunker:
         section_text: str,
         start_index: int,
     ) -> Tuple[List[ChunkData], int]:
-        prefix = f"[{heading_path}]\n\n"
-        prefix_tokens = self.count_tokens(prefix)
-        effective_target = max(self.target_tokens - prefix_tokens, 100)
-        effective_max = max(self.max_tokens - prefix_tokens, 150)
-
         # First break into paragraphs
         raw_units: List[str] = []
         for p in self._split_into_paragraphs(section_text):
             p_tokens = self.count_tokens(p)
-            if p_tokens > effective_target:
+            if p_tokens > self.target_tokens:
                 # Break large paragraph into sentences
                 sentences = self._split_into_sentences(p)
                 for s in sentences:
                     s_tokens = self.count_tokens(s)
-                    if s_tokens > effective_target:
+                    if s_tokens > self.target_tokens:
                         # Fallback for very long sentence: break by words
                         words = s.split()
                         sub_w: List[str] = []
                         for w in words:
                             sub_w.append(w)
-                            if self.count_tokens(" ".join(sub_w)) >= effective_target:
+                            if self.count_tokens(" ".join(sub_w)) >= self.target_tokens:
                                 raw_units.append(" ".join(sub_w))
                                 sub_w = []
                         if sub_w:
@@ -92,7 +92,7 @@ class MarkdownHeadingChunker:
             accumulated_text = ""
             current_tokens = 0
 
-            # Gather units up to effective_target
+            # Gather units up to target_tokens
             unit_start_idx = idx
             while idx < n_units:
                 unit = raw_units[idx]
@@ -103,10 +103,10 @@ class MarkdownHeadingChunker:
                 )
                 test_tokens = self.count_tokens(test_text)
 
-                if test_tokens > effective_target and accumulated_units:
+                if test_tokens > self.target_tokens and accumulated_units:
                     break
 
-                if test_tokens > effective_max and accumulated_units:
+                if test_tokens > self.max_tokens and accumulated_units:
                     break
 
                 accumulated_units.append(unit)
@@ -114,10 +114,10 @@ class MarkdownHeadingChunker:
                 current_tokens = test_tokens
                 idx += 1
 
-            full_content = f"{prefix}{accumulated_text}".strip()
+            full_content = accumulated_text.strip()
             total_tokens = self.count_tokens(full_content)
 
-            # If by any chance total_tokens still exceeds max_tokens, truncate tokens directly
+            # If total_tokens exceeds max_tokens, slice tokens directly
             if total_tokens > self.max_tokens:
                 encoded_ids = self.tokenizer.encode(
                     full_content, add_special_tokens=False
@@ -151,17 +151,99 @@ class MarkdownHeadingChunker:
                 else:
                     break
 
-            # Reposition idx backwards by back_steps for overlap
             if back_steps > 0:
                 idx -= back_steps
 
         return chunks, current_index
 
+    def _merge_tiny_chunks(self, chunks: List[ChunkData]) -> List[ChunkData]:
+        """
+        Merge heading-only or tiny chunks (< 80 tokens) into the next sibling chunk.
+        If a tiny chunk is at the end of the document, merge into the previous chunk.
+        """
+        if not chunks:
+            return []
+
+        merged: List[ChunkData] = []
+        pending_prefix = ""
+        pending_heading = None
+
+        for chunk in chunks:
+            if pending_prefix:
+                combined_content = f"{pending_prefix}\n\n{chunk.content}".strip()
+                combined_tokens = self.count_tokens(combined_content)
+                if combined_tokens <= self.max_tokens:
+                    chunk = ChunkData(
+                        chunk_index=0,
+                        heading_path=chunk.heading_path or pending_heading or "",
+                        content=combined_content,
+                        token_count=combined_tokens,
+                    )
+                    pending_prefix = ""
+                    pending_heading = None
+                else:
+                    # Could not merge without exceeding max_tokens, output pending
+                    merged.append(
+                        ChunkData(
+                            chunk_index=0,
+                            heading_path=pending_heading or "",
+                            content=pending_prefix,
+                            token_count=self.count_tokens(pending_prefix),
+                        )
+                    )
+                    pending_prefix = ""
+                    pending_heading = None
+
+            if chunk.token_count < self.min_tokens:
+                pending_prefix = chunk.content
+                pending_heading = chunk.heading_path
+            else:
+                merged.append(chunk)
+
+        # Handle any leftover pending chunk at the end
+        if pending_prefix:
+            if merged:
+                last = merged[-1]
+                combined_content = f"{last.content}\n\n{pending_prefix}".strip()
+                combined_tokens = self.count_tokens(combined_content)
+                if combined_tokens <= self.max_tokens:
+                    merged[-1] = ChunkData(
+                        chunk_index=0,
+                        heading_path=last.heading_path,
+                        content=combined_content,
+                        token_count=combined_tokens,
+                    )
+                else:
+                    merged.append(
+                        ChunkData(
+                            chunk_index=0,
+                            heading_path=pending_heading or "",
+                            content=pending_prefix,
+                            token_count=self.count_tokens(pending_prefix),
+                        )
+                    )
+            else:
+                # Whole document was smaller than min_tokens
+                merged.append(
+                    ChunkData(
+                        chunk_index=0,
+                        heading_path=pending_heading or "",
+                        content=pending_prefix,
+                        token_count=self.count_tokens(pending_prefix),
+                    )
+                )
+
+        # Re-index sequentially
+        for idx, c in enumerate(merged):
+            c.chunk_index = idx
+
+        return merged
+
     def chunk_document(
         self, markdown_content: str, default_title: str = "Overview"
     ) -> List[ChunkData]:
         """
-        Parses markdown content by heading hierarchy and produces chunks.
+        Parses markdown content by heading hierarchy, chunks, and merges tiny chunks.
         """
         heading_regex = re.compile(r"^(#{1,6})\s+(.+)$")
         lines = markdown_content.splitlines()
@@ -186,6 +268,7 @@ class MarkdownHeadingChunker:
 
                 level = len(match.group(1))
                 heading_title = match.group(2).strip()
+                heading_title = re.sub(r"\{[^{}]*\}", "", heading_title).strip()
 
                 # Pop headings of deeper or equal level
                 while heading_stack and heading_stack[-1][0] >= level:
@@ -200,27 +283,28 @@ class MarkdownHeadingChunker:
         if final_text:
             sections.append((get_current_heading_path(), final_text))
 
-        # If document had no sections (e.g. empty or only title), handle gracefully
+        # If document had no sections, fallback to whole document
         if not sections and default_title:
-            sections.append((default_title, markdown_content.strip()))
+            cleaned = markdown_content.strip()
+            if cleaned:
+                sections.append((default_title, cleaned))
 
-        # Now chunk each section
-        chunks: List[ChunkData] = []
+        initial_chunks: List[ChunkData] = []
         chunk_idx = 0
 
         for heading_path, text in sections:
             if not text:
                 continue
 
-            content_with_prefix = f"[{heading_path}]\n\n{text}".strip()
-            total_tokens = self.count_tokens(content_with_prefix)
+            clean_text = text.strip()
+            total_tokens = self.count_tokens(clean_text)
 
             if total_tokens <= self.target_tokens:
-                chunks.append(
+                initial_chunks.append(
                     ChunkData(
                         chunk_index=chunk_idx,
                         heading_path=heading_path,
-                        content=content_with_prefix,
+                        content=clean_text,
                         token_count=total_tokens,
                     )
                 )
@@ -228,9 +312,11 @@ class MarkdownHeadingChunker:
             else:
                 sub_chunks, chunk_idx = self._create_overlapping_subchunks(
                     heading_path=heading_path,
-                    section_text=text,
+                    section_text=clean_text,
                     start_index=chunk_idx,
                 )
-                chunks.extend(sub_chunks)
+                initial_chunks.extend(sub_chunks)
 
-        return chunks
+        # Merge tiny chunks (< 80 tokens) into sibling chunks
+        final_chunks = self._merge_tiny_chunks(initial_chunks)
+        return final_chunks

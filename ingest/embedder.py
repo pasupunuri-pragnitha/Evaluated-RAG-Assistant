@@ -12,6 +12,8 @@ class Embedder:
     def __init__(self, model_name: str | None = None):
         self.model_name = model_name or settings.embedding_model_name
         self.model = SentenceTransformer(self.model_name)
+        # Prevent tokenizer sequence length warning during arbitrary text token counting
+        self.model.tokenizer.model_max_length = int(1e9)
 
     @property
     def tokenizer(self):
