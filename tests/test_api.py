@@ -276,7 +276,7 @@ def test_reranker_not_loaded_when_use_reranker_false(client, monkeypatch):
 
 
 def test_response_includes_retriever_name(client, monkeypatch):
-    """Response includes retriever name and top_vector_score."""
+    """Response includes retriever name, top_vector_score, rrf_score in sources, and no top_score."""
     from retrieval.hybrid import HybridResponse, HybridSearchResult
 
     monkeypatch.setattr(settings, "retriever", "hybrid-bm25")
@@ -308,5 +308,53 @@ def test_response_includes_retriever_name(client, monkeypatch):
     data = response.json()
     assert data["retriever"] == "hybrid-bm25"
     assert data["top_vector_score"] == 0.82
+    assert "top_score" not in data
     assert data["refused"] is False
+
+    # Check sources_retrieved has rrf_score and vector_score, but score is None
+    src = data["sources_retrieved"][0]
+    assert src["rrf_score"] == 0.033
+    assert src["score"] is None
+    assert src["vector_score"] == 0.82
+    assert src["rerank_score"] is None
+
+    # Check sources_cited also has rrf_score
+    cited = data["sources_cited"][0]
+    assert cited["rrf_score"] == 0.033
+    assert cited["score"] is None
+    assert cited["vector_score"] == 0.82
+
+
+def test_vector_retriever_sources_have_score(client, monkeypatch):
+    """For plain vector retriever, score stays the cosine similarity."""
+    monkeypatch.setattr(settings, "retriever", "vector")
+    monkeypatch.setattr(settings, "use_reranker", False)
+
+    good_chunk = SearchResult(
+        chunk_id="c1",
+        source_path="docs/fastapi/tutorial.md",
+        title="Tutorial",
+        heading_path="Tutorial",
+        content="Tutorial content",
+        score=0.85,
+    )
+    monkeypatch.setattr(main_mod, "search", lambda query, k: [good_chunk])
+
+    mock_llm = MagicMock()
+    mock_llm.check_reachability.return_value = True
+    mock_llm.generate_answer.return_value = "Answer according to [1]."
+    monkeypatch.setattr(main_mod, "llm_client", mock_llm)
+
+    response = client.post("/ask", json={"query": "How do I do X?", "k": 5})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["retriever"] == "vector"
+    assert data["top_vector_score"] == 0.85
+    assert "top_score" not in data
+
+    src = data["sources_retrieved"][0]
+    assert src["score"] == 0.85
+    assert src["rrf_score"] is None
+    assert src["vector_score"] == 0.85
+
 

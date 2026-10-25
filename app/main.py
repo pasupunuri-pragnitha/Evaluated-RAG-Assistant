@@ -1,5 +1,6 @@
 import logging
 import sys
+import threading
 import time
 from contextlib import asynccontextmanager
 from typing import Any, List, Optional, Tuple
@@ -18,11 +19,48 @@ llm_client = LLMClient()
 # Alias search for backward compatibility with tests monkeypatching main_mod.search
 search = vector_search
 
+# Threading event signaling when background BM25 index build has finished
+bm25_ready_event = threading.Event()
+
+
+def is_bm25_loaded() -> bool:
+    """Check if BM25 index is loaded in memory without triggering a load."""
+    if "retrieval.bm25" in sys.modules:
+        bm25_mod = sys.modules["retrieval.bm25"]
+        return getattr(bm25_mod, "_index", None) is not None
+    return False
+
+
+def _build_bm25_bg():
+    """Build BM25 index in a background thread."""
+    try:
+        logger.info("Starting background BM25 index build...")
+        from retrieval.bm25 import get_bm25_index
+
+        get_bm25_index()
+        logger.info("Background BM25 index build complete.")
+    except Exception as e:
+        logger.warning("Background BM25 index build failed or deferred: %s", e)
+    finally:
+        bm25_ready_event.set()
+
+
+def wait_for_bm25():
+    """Wait for background BM25 index build to complete if not ready yet."""
+    if not is_bm25_loaded():
+        logger.info("Waiting for BM25 index build to complete before retrieval...")
+        bm25_ready_event.wait(timeout=60)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Initializing vector embedder model...")
     get_embedder()
+
+    # Build BM25 index in background thread without blocking startup
+    t = threading.Thread(target=_build_bm25_bg, daemon=True)
+    t.start()
+
     logger.info("Warmup complete. Application ready on port %s", settings.app_port)
     yield
 
@@ -64,12 +102,7 @@ def health_check():
 
     retriever_name = settings.retriever
     reranker_enabled = settings.use_reranker or (retriever_name == "hybrid-bm25-rerank")
-
-    # Check if BM25 index is loaded in memory without triggering a load
-    bm25_loaded = False
-    if "retrieval.bm25" in sys.modules:
-        bm25_mod = sys.modules["retrieval.bm25"]
-        bm25_loaded = getattr(bm25_mod, "_index", None) is not None
+    bm25_loaded = is_bm25_loaded()
 
     return HealthResponse(
         status="ok",
@@ -103,6 +136,7 @@ def retrieve_chunks(
 
     if use_reranker:
         retriever_name = "hybrid-bm25-rerank"
+        wait_for_bm25()
         from retrieval.rerank import search as rerank_search
 
         r_resp = rerank_search(query=query, k=k, pool=50, rrf_k=60)
@@ -112,6 +146,7 @@ def retrieve_chunks(
         return r_resp.results, top_v, top_r, r_lat, retriever_name
 
     elif retriever_name == "hybrid-bm25":
+        wait_for_bm25()
         from retrieval.hybrid import search as hybrid_search
 
         h_resp = hybrid_search(query=query, k=k, pool=50, rrf_k=60, keyword_retriever="bm25")
@@ -124,6 +159,7 @@ def retrieve_chunks(
         return chunks, top_v, None, None, retriever_name
 
     else:
+        wait_for_bm25()
         from retrieval.hybrid import search as hybrid_search
 
         h_resp = hybrid_search(query=query, k=k, pool=50, rrf_k=60, keyword_retriever="bm25")
@@ -151,17 +187,33 @@ def ask_question(request: AskRequest):
     )
     retrieval_ms = round((time.perf_counter() - start_retrieval) * 1000, 2)
 
-    sources_retrieved = [
-        SourceItem(
-            index=i,
-            source_path=chunk.source_path,
-            title=chunk.title,
-            heading_path=chunk.heading_path,
-            score=round(chunk.score, 4),
+    is_hybrid_or_rerank = "hybrid" in effective_retriever or "rerank" in effective_retriever
+
+    sources_retrieved = []
+    for i, chunk in enumerate(chunks, 1):
+        if is_hybrid_or_rerank:
+            s_score = None
+            s_rrf = round(chunk.rrf_score, 6) if getattr(chunk, "rrf_score", None) is not None else round(chunk.score, 6)
+            s_vec = round(chunk.vector_score, 4) if getattr(chunk, "vector_score", None) is not None else None
+            s_rerank = round(chunk.rerank_score, 6) if getattr(chunk, "rerank_score", None) is not None else None
+        else:
+            s_score = round(chunk.score, 4)
+            s_rrf = None
+            s_vec = round(chunk.score, 4)
+            s_rerank = None
+
+        sources_retrieved.append(
+            SourceItem(
+                index=i,
+                source_path=chunk.source_path,
+                title=chunk.title,
+                heading_path=chunk.heading_path,
+                score=s_score,
+                rrf_score=s_rrf,
+                vector_score=s_vec,
+                rerank_score=s_rerank,
+            )
         )
-        for i, chunk in enumerate(chunks, 1)
-    ]
-    top_score = round(chunks[0].score, 4) if chunks else 0.0
 
     # 2. Refusal Gate:
     # Always check top_vector_score against min_score for every retriever
@@ -178,7 +230,6 @@ def ask_question(request: AskRequest):
             query=request.query,
             answer=REFUSAL_MESSAGE,
             refused=True,
-            top_score=top_score,
             sources_cited=[],
             sources_retrieved=sources_retrieved,
             warnings=[],
@@ -229,7 +280,6 @@ def ask_question(request: AskRequest):
         query=request.query,
         answer=cleaned_answer,
         refused=refused_by_llm,
-        top_score=top_score,
         sources_cited=sources_cited,
         sources_retrieved=sources_retrieved,
         warnings=warnings,

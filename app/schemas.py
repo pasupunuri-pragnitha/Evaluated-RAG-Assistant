@@ -24,7 +24,10 @@ class SourceItem(BaseModel):
     source_path: str
     title: str
     heading_path: str
-    score: float
+    score: Optional[float] = None
+    rrf_score: Optional[float] = None
+    vector_score: Optional[float] = None
+    rerank_score: Optional[float] = None
 
 
 class LatencyMs(BaseModel):
@@ -38,7 +41,6 @@ class AskResponse(BaseModel):
     query: str
     answer: str
     refused: bool
-    top_score: float
     sources_cited: List[SourceItem]
     sources_retrieved: List[SourceItem]
     warnings: List[str]
