@@ -5,13 +5,14 @@ import logging
 from pathlib import Path
 import subprocess
 import sys
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Optional, Set
 
 from app.config import settings
 from db.connection import get_db_connection
 from retrieval.bm25 import search as bm25_search
 from retrieval.fulltext import search as fulltext_search
 from retrieval.hybrid import search as hybrid_search
+from retrieval.rerank import search as rerank_search
 from retrieval.vector import get_embedder, search as vector_search
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -141,6 +142,7 @@ def run_evaluation(
     rrf_k: int = 60,
     run_name: str = "baseline",
     questions_file: str = "eval/questions.jsonl",
+    rerank_threshold: Optional[float] = None,
 ) -> Dict[str, Any]:
     embedder = get_embedder()
     embedding_device = str(embedder.model.device)
@@ -159,6 +161,7 @@ def run_evaluation(
     answerable_false_refusals = 0
     unanswerable_refusals = 0
 
+    rerank_latencies: List[float] = []
     per_question_results: List[Dict[str, Any]] = []
 
     # Per-type tracking for answerable questions
@@ -166,7 +169,7 @@ def run_evaluation(
 
     print(
         f"Evaluating {len(questions)} questions [retriever={retriever}, k={k}, "
-        f"MIN_SCORE={min_score}{f', pool={pool}, rrf_k={rrf_k}' if retriever == 'hybrid' else ''}]...\n"
+        f"MIN_SCORE={min_score}{f', pool={pool}, rrf_k={rrf_k}' if 'hybrid' in retriever else ''}]...\n"
     )
 
     with get_db_connection() as conn:
@@ -177,6 +180,9 @@ def run_evaluation(
             is_answerable = item["answerable"]
             expected_sources_list = item.get("expected_sources", [])
             expected_sources_set = set(expected_sources_list)
+
+            top_rerank_score = None
+            rerank_latency = None
 
             if retriever == "vector":
                 results = vector_search(query=q_text, k=k, conn=conn)
@@ -202,6 +208,14 @@ def run_evaluation(
                 results = h_res.results
                 top_vector_score = round(h_res.top_vector_score, 4)
                 top_score = round(results[0].rrf_score, 6) if results else 0.0
+            elif retriever == "hybrid-bm25-rerank":
+                r_res = rerank_search(query=q_text, k=k, pool=pool, rrf_k=rrf_k, conn=conn)
+                results = r_res.results
+                top_vector_score = round(r_res.top_vector_score, 4)
+                top_rerank_score = round(r_res.top_rerank_score, 6)
+                top_score = top_rerank_score
+                rerank_latency = round(r_res.rerank_latency_ms, 2)
+                rerank_latencies.append(rerank_latency)
             else:
                 raise ValueError(f"Unknown retriever: {retriever}")
 
@@ -214,9 +228,15 @@ def run_evaluation(
                     "source_path": r.source_path,
                     "title": r.title,
                     "heading_path": r.heading_path,
-                    "score": round(r.score, 6 if "hybrid" in retriever else 4),
+                    "score": round(r.score, 6 if ("hybrid" in retriever or "rerank" in retriever) else 4),
                     "is_match": r.source_path in expected_sources_set,
                 }
+                if hasattr(r, "rerank_score"):
+                    chunk_dict["rerank_score"] = round(r.rerank_score, 6)
+                if hasattr(r, "rerank_rank"):
+                    chunk_dict["rerank_rank"] = r.rerank_rank
+                if hasattr(r, "rrf_score"):
+                    chunk_dict["rrf_score"] = round(r.rrf_score, 6) if r.rrf_score is not None else None
                 if hasattr(r, "vector_score"):
                     chunk_dict["vector_score"] = round(r.vector_score, 4) if r.vector_score is not None else None
                 if hasattr(r, "vector_rank"):
@@ -242,6 +262,9 @@ def run_evaluation(
                 "first_match_rank": None,
                 "reciprocal_rank": 0.0,
             }
+            if "rerank" in retriever:
+                q_res["top_rerank_score"] = top_rerank_score
+                q_res["rerank_latency_ms"] = rerank_latency
 
             if is_answerable:
                 total_answerable += 1
@@ -321,6 +344,64 @@ def run_evaluation(
     ans_stats = compute_percentiles(answerable_top_vector_scores)
     unans_stats = compute_percentiles(unanswerable_top_vector_scores)
 
+    # Rerank Gate Analysis
+    eff_rerank_threshold = None
+    threshold_source = None
+    rerank_unanswerable_refusals = 0
+    rerank_answerable_false_refusals = 0
+    rerank_unanswerable_refusal_rate = 0.0
+    rerank_answerable_false_refusal_rate = 0.0
+    unanswerable_passed_cosine: List[str] = []
+    unanswerable_passed_rerank: List[str] = []
+
+    if "rerank" in retriever:
+        if rerank_threshold is not None:
+            eff_rerank_threshold = float(rerank_threshold)
+            threshold_source = f"CLI argument --rerank-threshold {eff_rerank_threshold:.6f}"
+        elif "questions_v2" in str(questions_file):
+            v1_candidates = [
+                Path("eval/baselines/v1-hybrid-bm25-rerank.json"),
+                Path("eval/results/v1-rerank-a.json"),
+                Path("eval/results/v1-rerank-b.json"),
+            ]
+            found_v1 = None
+            for vc in v1_candidates:
+                if vc.exists():
+                    found_v1 = vc
+                    break
+            if found_v1:
+                with open(found_v1, "r", encoding="utf-8") as vf:
+                    v1_data = json.load(vf)
+                eff_rerank_threshold = v1_data.get("metrics", {}).get("rerank_threshold")
+                if eff_rerank_threshold is None:
+                    eff_rerank_threshold = min(q["top_rerank_score"] for q in v1_data["questions"] if q["answerable"])
+                threshold_source = f"Loaded from v1 baseline ({found_v1})"
+            else:
+                raise ValueError(
+                    "Evaluating v2 with reranker requires pre-computed v1 threshold, but no v1 rerank baseline found! "
+                    "Run v1 first or pass --rerank-threshold."
+                )
+        else:
+            ans_rerank_scores = [q["top_rerank_score"] for q in per_question_results if q["answerable"]]
+            eff_rerank_threshold = min(ans_rerank_scores) if ans_rerank_scores else 0.0
+            threshold_source = "Computed from lowest top_rerank_score among v1 answerable questions"
+
+        for q in per_question_results:
+            q_rerank_score = q.get("top_rerank_score", 0.0)
+            q["rerank_gate_refused"] = q_rerank_score < eff_rerank_threshold
+
+        rerank_unanswerable_refusals = sum(1 for q in per_question_results if not q["answerable"] and q["rerank_gate_refused"])
+        rerank_answerable_false_refusals = sum(1 for q in per_question_results if q["answerable"] and q["rerank_gate_refused"])
+        rerank_unanswerable_refusal_rate = (
+            round(rerank_unanswerable_refusals / total_unanswerable, 4) if total_unanswerable else 0.0
+        )
+        rerank_answerable_false_refusal_rate = (
+            round(rerank_answerable_false_refusals / total_answerable, 4) if total_answerable else 0.0
+        )
+
+        unanswerable_passed_cosine = [q["id"] for q in per_question_results if not q["answerable"] and not q["gate_refused"]]
+        unanswerable_passed_rerank = [q["id"] for q in per_question_results if not q["answerable"] and not q["rerank_gate_refused"]]
+
     eval_output = {
         "run_name": run_name,
         "questions_file": str(questions_file),
@@ -330,11 +411,12 @@ def run_evaluation(
         "config": {
             "questions_file": str(questions_file),
             "retriever": retriever,
-            "keyword_retriever": "bm25" if retriever == "hybrid-bm25" else ("fulltext" if retriever == "hybrid" else None),
+            "keyword_retriever": "bm25" if ("bm25" in retriever and "hybrid" in retriever) else ("fulltext" if retriever == "hybrid" else None),
             "k": k,
             "min_score": min_score,
             "pool": pool if "hybrid" in retriever else None,
             "rrf_k": rrf_k if "hybrid" in retriever else None,
+            "rerank_threshold": eff_rerank_threshold if "rerank" in retriever else None,
             "embedding_model": settings.embedding_model_name,
             "llm_model": settings.llm_model,
         },
@@ -356,6 +438,16 @@ def run_evaluation(
         },
         "questions": per_question_results,
     }
+
+    if "rerank" in retriever:
+        eval_output["metrics"]["mean_rerank_latency_ms"] = round(sum(rerank_latencies) / len(rerank_latencies), 2) if rerank_latencies else 0.0
+        eval_output["metrics"]["max_rerank_latency_ms"] = round(max(rerank_latencies), 2) if rerank_latencies else 0.0
+        eval_output["metrics"]["rerank_threshold"] = eff_rerank_threshold
+        eval_output["metrics"]["rerank_threshold_source"] = threshold_source
+        eval_output["metrics"]["rerank_unanswerable_refusal_rate"] = rerank_unanswerable_refusal_rate
+        eval_output["metrics"]["rerank_answerable_false_refusal_rate"] = rerank_answerable_false_refusal_rate
+        eval_output["metrics"]["unanswerable_passed_cosine"] = unanswerable_passed_cosine
+        eval_output["metrics"]["unanswerable_passed_rerank"] = unanswerable_passed_rerank
 
     # Print Summary Tables
     print("=" * 64)
@@ -389,6 +481,19 @@ def run_evaluation(
         a_val = ans_stats.get(stat, 0.0)
         u_val = unans_stats.get(stat, 0.0)
         print(f"{stat:<12} | {a_val:<12} | {u_val:<12}")
+
+    if "rerank" in retriever:
+        print("=" * 64)
+        print("RERANK GATE ANALYSIS:")
+        print(f"  Rerank Refusal Threshold   : {eff_rerank_threshold:.6f}")
+        print(f"  Threshold Source           : {threshold_source}")
+        print(f"  Cosine Gate Unans Refusal  : {unanswerable_refusal_rate:.4f} ({unanswerable_refusals}/{total_unanswerable})")
+        print(f"  Cosine Gate Ans False-Ref  : {answerable_false_refusal_rate:.4f} ({answerable_false_refusals}/{total_answerable})")
+        print(f"  Rerank Gate Unans Refusal  : {rerank_unanswerable_refusal_rate:.4f} ({rerank_unanswerable_refusals}/{total_unanswerable})")
+        print(f"  Rerank Gate Ans False-Ref  : {rerank_answerable_false_refusal_rate:.4f} ({rerank_answerable_false_refusals}/{total_answerable})")
+        print(f"  Unanswerable Passed Cosine : {unanswerable_passed_cosine}")
+        print(f"  Unanswerable Passed Rerank : {unanswerable_passed_rerank}")
+        print(f"  Rerank Latency (mean / max): {eval_output['metrics']['mean_rerank_latency_ms']:.2f} ms / {eval_output['metrics']['max_rerank_latency_ms']:.2f} ms")
     print("=" * 64)
 
     # 5 questions with lowest reciprocal rank among answerable
@@ -415,9 +520,9 @@ def main():
     parser.add_argument(
         "--retriever",
         type=str,
-        choices=["vector", "fulltext", "hybrid", "bm25", "hybrid-bm25"],
+        choices=["vector", "fulltext", "hybrid", "bm25", "hybrid-bm25", "hybrid-bm25-rerank"],
         default="vector",
-        help="Retriever type: vector, fulltext, hybrid, bm25, or hybrid-bm25 (default: vector)",
+        help="Retriever type: vector, fulltext, hybrid, bm25, hybrid-bm25, or hybrid-bm25-rerank (default: vector)",
     )
     parser.add_argument("-k", type=int, default=5, help="Number of retrieval chunks (default: 5)")
     parser.add_argument(
@@ -437,6 +542,12 @@ def main():
         type=int,
         default=60,
         help="RRF smoothing constant for hybrid search (default: 60)",
+    )
+    parser.add_argument(
+        "--rerank-threshold",
+        type=float,
+        default=None,
+        help="Rerank refusal threshold (computed from v1)",
     )
     args = parser.parse_args()
 
@@ -460,6 +571,7 @@ def main():
         rrf_k=args.rrf_k,
         run_name=args.run_name,
         questions_file=str(questions_file),
+        rerank_threshold=args.rerank_threshold,
     )
 
     # Write output to eval/results/<run_name>.json

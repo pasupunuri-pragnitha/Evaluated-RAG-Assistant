@@ -11,11 +11,11 @@ Baseline: vector-only retrieval. Hit@1 0.677, Hit@5 0.935, MRR 0.768
 
 | Case | What happened | Likely cause | After hybrid | After reranker |
 |---|---|---|---|---|
-| q003 "default 200 ok number when a new item gets saved" | Correct page chunk scored 0.57 and ranked 5th; top 4 were PUT/update chunks | The word "saved" pulled it toward update pages; the docs say "status code" | miss | |
-| q004 "restrict a path parameter to predefined choices" | Enum chunk scored 0.696 and fell just outside the top 5; top 5 were numeric-validation and query-param chunks | Embedding fixated on "path parameter"; "predefined" is a lexical clue | rank 1 | |
-| q007 "mark a post route as obsolete, crossed out in swagger" | Correct chunk scored 0.657; top 5 were Swagger UI configuration pages | Vocabulary gap: "obsolete / crossed out" vs "deprecated" | miss | |
-| q011 "catch image uploads from a web form" | Top 4 were error-handling chunks | "catch" matched exception-handling content | miss | |
-| q015 "serve css and javascript at /static" | A docs self-hosting assets page ranked 1 to 3 (top score 0.80); the real page ranked 4th | A competing page mentions the same terms and mounts the same directory | miss | |
+| q003 "default 200 ok number when a new item gets saved" | Correct page chunk scored 0.57 and ranked 5th; top 4 were PUT/update chunks | The word "saved" pulled it toward update pages; the docs say "status code" | miss | rank 3 |
+| q004 "restrict a path parameter to predefined choices" | Enum chunk scored 0.696 and fell just outside the top 5; top 5 were numeric-validation and query-param chunks | Embedding fixated on "path parameter"; "predefined" is a lexical clue | rank 1 | rank 1 |
+| q007 "mark a post route as obsolete, crossed out in swagger" | Correct chunk scored 0.657; top 5 were Swagger UI configuration pages | Vocabulary gap: "obsolete / crossed out" vs "deprecated" | miss | miss (no expected-page chunk among the 20 candidates) |
+| q011 "catch image uploads from a web form" | Top 4 were error-handling chunks | "catch" matched exception-handling content | miss | rank 2 |
+| q015 "serve css and javascript at /static" | A docs self-hosting assets page ranked 1 to 3 (top score 0.80); the real page ranked 4th | A competing page mentions the same terms and mounts the same directory | miss | miss (rank 6) |
 
 ## Hybrid search v1 (negative result)
 
