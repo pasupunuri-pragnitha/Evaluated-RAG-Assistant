@@ -38,3 +38,18 @@ class Embedder:
             convert_to_numpy=True,
         )
         return embeddings.tolist()
+
+    def embed_query(self, query: str) -> List[float]:
+        """
+        Embed a search query with the canonical BGE query prefix and L2 normalization.
+        Never added to documents.
+        """
+        query_text = f"Represent this sentence for searching relevant passages: {query.strip()}"
+        embedding = self.model.encode(
+            query_text,
+            normalize_embeddings=True,
+            show_progress_bar=False,
+            convert_to_numpy=True,
+        )
+        return embedding.tolist()
+

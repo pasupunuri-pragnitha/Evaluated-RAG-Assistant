@@ -27,6 +27,9 @@ class Settings(BaseSettings):
         "translations.md",
         "translation-banner.md",
         "_llm-test.md",
+        "reference/",
+        "resources/index.md",
+        "about/index.md",
     ]
 
     model_config = SettingsConfigDict(

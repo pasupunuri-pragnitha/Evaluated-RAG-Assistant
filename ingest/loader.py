@@ -52,8 +52,13 @@ def load_markdown_documents(docs_dir: str | Path) -> List[DocumentFile]:
         if file_path.is_dir() or file_path.suffix.lower() not in [".md", ".markdown"]:
             continue
 
-        # Skip excluded documents (changelogs, contributor rosters, etc.)
-        if any(file_path.name.lower() == ex.lower() or ex.lower() in file_path.as_posix().lower() for ex in settings.exclude_docs):
+        # Skip excluded documents (changelogs, contributor rosters, reference docs, etc.)
+        if any(
+            file_path.name.lower() == ex.lower()
+            or ex.lower() in file_path.as_posix().lower()
+            or ex.lower().rstrip("/") in file_path.as_posix().lower()
+            for ex in settings.exclude_docs
+        ):
             continue
 
         try:
