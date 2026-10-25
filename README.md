@@ -64,3 +64,16 @@ Evaluated-RAG-Assistant/
    ```bash
    python -m ingest.run --docs data/docs
    ```
+
+## Configuration
+
+The assistant is configured via environment variables or `.env`:
+
+| Variable | Default | Description |
+|---|---|---|
+| `RETRIEVER` | `hybrid-bm25` | Retriever pipeline: `vector`, `hybrid-bm25`, or `hybrid-bm25-rerank`. |
+| `USE_RERANKER` | `false` | Whether to enable cross-encoder reranking (`BAAI/bge-reranker-base`) over the top 20 candidates. |
+| `MIN_SCORE` | `0.60` | Score gate threshold applied to `top_vector_score` across all retrievers. Queries with `top_vector_score < MIN_SCORE` are refused without invoking the LLM. |
+| `RERANK_MIN_SCORE` | *unset* | Optional score gate threshold applied to `top_rerank_score` when `USE_RERANKER` is true. `RERANK_MIN_SCORE` is not set by default because the v1-derived 0.502 threshold passes 5 of 11 unanswerable questions on v2. |
+| `APP_PORT` | `8001` | Server listening port. |
+

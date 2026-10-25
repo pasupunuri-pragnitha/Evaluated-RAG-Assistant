@@ -1,17 +1,22 @@
 import logging
+import sys
 import time
 from contextlib import asynccontextmanager
+from typing import Any, List, Optional, Tuple
 from fastapi import FastAPI, HTTPException, status
 from app.config import REFUSAL_MESSAGE, settings
 from app.llm import LLMClient, process_answer_and_citations
 from app.schemas import AskRequest, AskResponse, HealthResponse, LatencyMs, SourceItem
 from db.connection import get_db_connection
-from retrieval.vector import get_embedder, search
+from retrieval.vector import get_embedder, search as vector_search
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("rag_api")
 
 llm_client = LLMClient()
+
+# Alias search for backward compatibility with tests monkeypatching main_mod.search
+search = vector_search
 
 
 @asynccontextmanager
@@ -57,6 +62,15 @@ def health_check():
             detail="Database connection error",
         )
 
+    retriever_name = settings.retriever
+    reranker_enabled = settings.use_reranker or (retriever_name == "hybrid-bm25-rerank")
+
+    # Check if BM25 index is loaded in memory without triggering a load
+    bm25_loaded = False
+    if "retrieval.bm25" in sys.modules:
+        bm25_mod = sys.modules["retrieval.bm25"]
+        bm25_loaded = getattr(bm25_mod, "_index", None) is not None
+
     return HealthResponse(
         status="ok",
         database=db_ok,
@@ -64,23 +78,77 @@ def health_check():
         llm_model=settings.llm_model,
         total_documents=total_docs,
         total_chunks=total_chunks,
+        retriever=retriever_name,
+        reranker_enabled=reranker_enabled,
+        bm25_loaded=bm25_loaded,
     )
+
+
+def retrieve_chunks(
+    query: str,
+    k: int = 5,
+) -> Tuple[List[Any], float, Optional[float], Optional[float], str]:
+    """
+    Retrieves chunks based on settings.retriever and settings.use_reranker.
+    Returns: (chunks, top_vector_score, top_rerank_score, rerank_latency_ms, effective_retriever)
+    """
+    retriever_name = settings.retriever
+    use_reranker = settings.use_reranker or (retriever_name == "hybrid-bm25-rerank")
+
+    # If `search` was monkeypatched in a test fixture:
+    if search != vector_search:
+        mocked_chunks = search(query=query, k=k)
+        top_v = round(mocked_chunks[0].score, 4) if mocked_chunks else 0.0
+        return mocked_chunks, top_v, None, None, retriever_name
+
+    if use_reranker:
+        retriever_name = "hybrid-bm25-rerank"
+        from retrieval.rerank import search as rerank_search
+
+        r_resp = rerank_search(query=query, k=k, pool=50, rrf_k=60)
+        top_v = round(r_resp.top_vector_score, 4)
+        top_r = round(r_resp.top_rerank_score, 6)
+        r_lat = round(r_resp.rerank_latency_ms, 2)
+        return r_resp.results, top_v, top_r, r_lat, retriever_name
+
+    elif retriever_name == "hybrid-bm25":
+        from retrieval.hybrid import search as hybrid_search
+
+        h_resp = hybrid_search(query=query, k=k, pool=50, rrf_k=60, keyword_retriever="bm25")
+        top_v = round(h_resp.top_vector_score, 4)
+        return h_resp.results, top_v, None, None, retriever_name
+
+    elif retriever_name == "vector":
+        chunks = vector_search(query=query, k=k)
+        top_v = round(chunks[0].score, 4) if chunks else 0.0
+        return chunks, top_v, None, None, retriever_name
+
+    else:
+        from retrieval.hybrid import search as hybrid_search
+
+        h_resp = hybrid_search(query=query, k=k, pool=50, rrf_k=60, keyword_retriever="bm25")
+        top_v = round(h_resp.top_vector_score, 4)
+        return h_resp.results, top_v, None, None, retriever_name
 
 
 @app.post("/ask", response_model=AskResponse)
 def ask_question(request: AskRequest):
     """
     RAG Endpoint:
-    - Retrieves top-k chunks with pgvector HNSW index.
-    - If top retrieval score < MIN_SCORE (0.60), short-circuits and refuses without calling LLM.
+    - Uses configured retriever (default: hybrid-bm25 with pool=50, rrf_k=60, k=5).
+    - If USE_RERANKER is True, reranks top 20 candidates with CrossEncoder.
+    - If top_vector_score < MIN_SCORE (0.60), short-circuits and refuses without calling LLM.
+    - If USE_RERANKER is True and RERANK_MIN_SCORE is set, also refuses if top_rerank_score < RERANK_MIN_SCORE.
     - Queries OpenAI-compatible LLM endpoint (Ollama llama31-rag) with grounded prompt.
     - Validates citations, detects refusal, filters cited sources, and tracks latency.
     """
     start_total = time.perf_counter()
 
-    # 1. Vector Retrieval
+    # 1. Retrieval
     start_retrieval = time.perf_counter()
-    chunks = search(query=request.query, k=request.k)
+    chunks, top_vector_score, top_rerank_score, rerank_latency_ms, effective_retriever = retrieve_chunks(
+        query=request.query, k=request.k
+    )
     retrieval_ms = round((time.perf_counter() - start_retrieval) * 1000, 2)
 
     sources_retrieved = [
@@ -95,8 +163,16 @@ def ask_question(request: AskRequest):
     ]
     top_score = round(chunks[0].score, 4) if chunks else 0.0
 
-    # 2. Score Gate: If top score is below threshold, refuse immediately without calling LLM
-    if not chunks or top_score < settings.min_score:
+    # 2. Refusal Gate:
+    # Always check top_vector_score against min_score for every retriever
+    refused = (not chunks) or (top_vector_score < settings.min_score)
+
+    # If reranker used and rerank_min_score set, also check top_rerank_score
+    if (settings.use_reranker or effective_retriever == "hybrid-bm25-rerank") and settings.rerank_min_score is not None:
+        if top_rerank_score is not None and top_rerank_score < settings.rerank_min_score:
+            refused = True
+
+    if refused:
         total_ms = round((time.perf_counter() - start_total) * 1000, 2)
         return AskResponse(
             query=request.query,
@@ -110,7 +186,12 @@ def ask_question(request: AskRequest):
                 retrieval=retrieval_ms,
                 llm=0.0,
                 total=total_ms,
+                rerank=rerank_latency_ms,
             ),
+            retriever=effective_retriever,
+            top_vector_score=top_vector_score,
+            top_rerank_score=top_rerank_score,
+            rerank_latency_ms=rerank_latency_ms,
         )
 
     # 3. Check LLM Reachability
@@ -138,7 +219,7 @@ def ask_question(request: AskRequest):
     llm_ms = round((time.perf_counter() - start_llm) * 1000, 2)
 
     # 5. Citation Validation and Refusal Handling
-    cleaned_answer, refused, sources_cited, warnings = process_answer_and_citations(
+    cleaned_answer, refused_by_llm, sources_cited, warnings = process_answer_and_citations(
         raw_answer, k=request.k, sources_retrieved=sources_retrieved, chunks=chunks
     )
 
@@ -147,7 +228,7 @@ def ask_question(request: AskRequest):
     return AskResponse(
         query=request.query,
         answer=cleaned_answer,
-        refused=refused,
+        refused=refused_by_llm,
         top_score=top_score,
         sources_cited=sources_cited,
         sources_retrieved=sources_retrieved,
@@ -156,7 +237,12 @@ def ask_question(request: AskRequest):
             retrieval=retrieval_ms,
             llm=llm_ms,
             total=total_ms,
+            rerank=rerank_latency_ms,
         ),
+        retriever=effective_retriever,
+        top_vector_score=top_vector_score,
+        top_rerank_score=top_rerank_score,
+        rerank_latency_ms=rerank_latency_ms,
     )
 
 

@@ -1,4 +1,5 @@
 import os
+from typing import List, Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REFUSAL_MESSAGE = "I don't know based on the documentation."
@@ -18,6 +19,9 @@ class Settings(BaseSettings):
     llm_api_key: str = "ollama"
     llm_timeout_seconds: int = 300
     min_score: float = 0.60
+    retriever: str = "hybrid-bm25"
+    use_reranker: bool = False
+    rerank_min_score: Optional[float] = None
 
     app_host: str = "0.0.0.0"
     app_port: int = 8001

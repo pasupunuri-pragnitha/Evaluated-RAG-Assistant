@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, Field
 
 
@@ -9,6 +9,9 @@ class HealthResponse(BaseModel):
     llm_model: str
     total_documents: int
     total_chunks: int
+    retriever: str
+    reranker_enabled: bool
+    bm25_loaded: bool
 
 
 class AskRequest(BaseModel):
@@ -28,6 +31,7 @@ class LatencyMs(BaseModel):
     retrieval: float
     llm: float
     total: float
+    rerank: Optional[float] = None
 
 
 class AskResponse(BaseModel):
@@ -39,3 +43,8 @@ class AskResponse(BaseModel):
     sources_retrieved: List[SourceItem]
     warnings: List[str]
     latency_ms: LatencyMs
+    retriever: str
+    top_vector_score: Optional[float] = None
+    top_rerank_score: Optional[float] = None
+    rerank_latency_ms: Optional[float] = None
+

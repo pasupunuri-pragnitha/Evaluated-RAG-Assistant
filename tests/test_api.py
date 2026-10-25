@@ -180,3 +180,133 @@ def test_health_reports_database_and_llm_reachable(client, monkeypatch):
     assert data["llm_reachable"] is True
     assert data["total_documents"] == 124
     assert data["total_chunks"] == 1117
+    assert data["retriever"] == settings.retriever
+    assert data["reranker_enabled"] is False
+    assert "bm25_loaded" in data
+
+
+def test_gate_uses_top_vector_score_for_hybrid(client, monkeypatch):
+    """Refusal gate uses top_vector_score for hybrid-bm25, not RRF score."""
+    from retrieval.hybrid import HybridResponse, HybridSearchResult
+
+    monkeypatch.setattr(settings, "retriever", "hybrid-bm25")
+    monkeypatch.setattr(settings, "use_reranker", False)
+    monkeypatch.setattr(settings, "min_score", 0.60)
+
+    # Hybrid returns a chunk with top_vector_score 0.45 (below min_score 0.60)
+    # even though rrf_score and score are non-zero.
+    hybrid_chunk = HybridSearchResult(
+        chunk_id="chunk-hybrid-low",
+        source_path="docs/fastapi/tutorial.md",
+        title="Tutorial",
+        heading_path="Tutorial",
+        content="Some content",
+        score=0.033,
+        rrf_score=0.033,
+        vector_score=0.45,
+        vector_rank=1,
+        fulltext_rank=1,
+    )
+    fake_hybrid_resp = HybridResponse(
+        results=[hybrid_chunk],
+        top_vector_score=0.45,
+    )
+
+    import retrieval.hybrid as hybrid_mod
+    monkeypatch.setattr(hybrid_mod, "search", lambda *args, **kwargs: fake_hybrid_resp)
+
+    mock_llm = MagicMock()
+    monkeypatch.setattr(main_mod, "llm_client", mock_llm)
+
+    response = client.post("/ask", json={"query": "How do I do X?", "k": 5})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["refused"] is True
+    assert data["answer"] == REFUSAL_MESSAGE
+    assert data["retriever"] == "hybrid-bm25"
+    assert data["top_vector_score"] == 0.45
+    mock_llm.generate_answer.assert_not_called()
+
+
+def test_reranker_not_loaded_when_use_reranker_false(client, monkeypatch):
+    """Reranker module is not imported or loaded when USE_RERANKER is false."""
+    import sys
+    monkeypatch.setattr(settings, "use_reranker", False)
+    monkeypatch.setattr(settings, "retriever", "hybrid-bm25")
+
+    # Temporarily remove retrieval.rerank from sys.modules if it was previously imported
+    had_rerank = "retrieval.rerank" in sys.modules
+    rerank_mod = sys.modules.pop("retrieval.rerank", None)
+
+    try:
+        # /health check must not load reranker
+        res_health = client.get("/health")
+        assert res_health.status_code == 200
+        assert "retrieval.rerank" not in sys.modules
+
+        # /ask with mocked hybrid search must not load reranker
+        from retrieval.hybrid import HybridResponse, HybridSearchResult
+        fake_chunk = HybridSearchResult(
+            chunk_id="c1",
+            source_path="docs/fastapi/tutorial.md",
+            title="Tutorial",
+            heading_path="Tutorial",
+            content="Tutorial content",
+            score=0.033,
+            rrf_score=0.033,
+            vector_score=0.85,
+            vector_rank=1,
+            fulltext_rank=1,
+        )
+        fake_resp = HybridResponse(results=[fake_chunk], top_vector_score=0.85)
+        import retrieval.hybrid as hybrid_mod
+        monkeypatch.setattr(hybrid_mod, "search", lambda *args, **kwargs: fake_resp)
+
+        mock_llm = MagicMock()
+        mock_llm.check_reachability.return_value = True
+        mock_llm.generate_answer.return_value = "Answer according to [1]."
+        monkeypatch.setattr(main_mod, "llm_client", mock_llm)
+
+        res_ask = client.post("/ask", json={"query": "Test query", "k": 5})
+        assert res_ask.status_code == 200
+        assert "retrieval.rerank" not in sys.modules
+    finally:
+        if had_rerank and rerank_mod is not None:
+            sys.modules["retrieval.rerank"] = rerank_mod
+
+
+def test_response_includes_retriever_name(client, monkeypatch):
+    """Response includes retriever name and top_vector_score."""
+    from retrieval.hybrid import HybridResponse, HybridSearchResult
+
+    monkeypatch.setattr(settings, "retriever", "hybrid-bm25")
+    monkeypatch.setattr(settings, "use_reranker", False)
+
+    fake_chunk = HybridSearchResult(
+        chunk_id="c1",
+        source_path="docs/fastapi/tutorial.md",
+        title="Tutorial",
+        heading_path="Tutorial",
+        content="Tutorial content",
+        score=0.033,
+        rrf_score=0.033,
+        vector_score=0.82,
+        vector_rank=1,
+        fulltext_rank=1,
+    )
+    fake_resp = HybridResponse(results=[fake_chunk], top_vector_score=0.82)
+    import retrieval.hybrid as hybrid_mod
+    monkeypatch.setattr(hybrid_mod, "search", lambda *args, **kwargs: fake_resp)
+
+    mock_llm = MagicMock()
+    mock_llm.check_reachability.return_value = True
+    mock_llm.generate_answer.return_value = "Answer according to [1]."
+    monkeypatch.setattr(main_mod, "llm_client", mock_llm)
+
+    response = client.post("/ask", json={"query": "How do I do X?", "k": 5})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["retriever"] == "hybrid-bm25"
+    assert data["top_vector_score"] == 0.82
+    assert data["refused"] is False
+
