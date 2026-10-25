@@ -1,0 +1,2044 @@
+{
+  "run_name": "v2-bm25-only",
+  "questions_file": "eval\\questions_v2.jsonl",
+  "timestamp": "2026-10-25T18:41:37.425069+00:00",
+  "git_commit": "4f0c7ef734492d86956824c04d0cfd9f56c89672",
+  "embedding_device": "cpu",
+  "config": {
+    "questions_file": "eval\\questions_v2.jsonl",
+    "retriever": "bm25",
+    "keyword_retriever": null,
+    "k": 5,
+    "min_score": 0.6,
+    "pool": null,
+    "rrf_k": null,
+    "embedding_model": "BAAI/bge-small-en-v1.5",
+    "llm_model": "llama31-rag"
+  },
+  "metrics": {
+    "total_questions": 31,
+    "answerable_count": 20,
+    "unanswerable_count": 11,
+    "hit_at_1": 0.5,
+    "hit_at_3": 0.75,
+    "hit_at_5": 0.8,
+    "mrr": 0.6183,
+    "by_type": {
+      "conceptual": {
+        "count": 8,
+        "hit_at_1": 0.5,
+        "hit_at_5": 0.75,
+        "mrr": 0.625
+      },
+      "how-to-with-code": {
+        "count": 7,
+        "hit_at_1": 0.5714,
+        "hit_at_5": 0.7143,
+        "mrr": 0.6
+      },
+      "lookup": {
+        "count": 5,
+        "hit_at_1": 0.4,
+        "hit_at_5": 1.0,
+        "mrr": 0.6333
+      }
+    },
+    "unanswerable_refusal_rate": 0.3636,
+    "answerable_false_refusal_rate": 0.0
+  },
+  "score_distributions": {
+    "answerable": {
+      "count": 20,
+      "min": 0.6823,
+      "p25": 0.7304,
+      "median": 0.7619,
+      "p75": 0.7929,
+      "max": 0.8327,
+      "mean": 0.7618
+    },
+    "unanswerable": {
+      "count": 11,
+      "min": 0.4517,
+      "p25": 0.5331,
+      "median": 0.6345,
+      "p75": 0.6895,
+      "max": 0.7553,
+      "mean": 0.6192
+    }
+  },
+  "questions": [
+    {
+      "id": "v001",
+      "type": "lookup",
+      "question": "How can I declare single primitive values like integers or strings as part of the JSON request body?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/body-multiple-params.md"
+      ],
+      "top_score": 18.5713,
+      "top_vector_score": 0.7602,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/handling-errors.md",
+          "title": "Handling Errors",
+          "heading_path": "Handling Errors > Override the default exception handlers > Override request validation exceptions",
+          "score": 18.5713,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 18.5713
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/body-multiple-params.md",
+          "title": "Body - Multiple Parameters",
+          "heading_path": "Body - Multiple Parameters > Recap",
+          "score": 18.2349,
+          "is_match": true,
+          "bm25_rank": 2,
+          "bm25_score": 18.2349
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/handling-errors.md",
+          "title": "Handling Errors",
+          "heading_path": "Handling Errors > Override the default exception handlers > Use the `RequestValidationError` body",
+          "score": 16.1654,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 16.1654
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/body.md",
+          "title": "Request Body",
+          "heading_path": "Request Body > Results",
+          "score": 14.1841,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 14.1841
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/body-nested-models.md",
+          "title": "Body - Nested Models",
+          "heading_path": "Body - Nested Models > Bodies of arbitrary `dict`s",
+          "score": 13.7288,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 13.7288
+        }
+      ],
+      "first_match_rank": 2,
+      "reciprocal_rank": 0.5
+    },
+    {
+      "id": "v002",
+      "type": "conceptual",
+      "question": "What does the JSON body look like when my endpoint takes two models?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/body-multiple-params.md"
+      ],
+      "top_score": 11.733,
+      "top_vector_score": 0.7619,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/security/oauth2-jwt.md",
+          "title": "OAuth2 with Password (and hashing), Bearer with JWT tokens",
+          "heading_path": "OAuth2 with Password (and hashing), Bearer with JWT tokens > Hash and verify the passwords",
+          "score": 11.733,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 11.733
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/body-multiple-params.md",
+          "title": "Body - Multiple Parameters",
+          "heading_path": "Body - Multiple Parameters > Multiple body parameters",
+          "score": 11.7202,
+          "is_match": true,
+          "bm25_rank": 2,
+          "bm25_score": 11.7202
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/openapi-callbacks.md",
+          "title": "OpenAPI Callbacks",
+          "heading_path": "OpenAPI Callbacks > Documenting the callback",
+          "score": 10.5945,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 10.5945
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/custom-response.md",
+          "title": "Custom Response - HTML, Stream, File, others",
+          "heading_path": "Custom Response - HTML, Stream, File, others > Custom response class > `orjson` or Response Model",
+          "score": 10.3497,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 10.3497
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/json-base64-bytes.md",
+          "title": "JSON with Bytes as Base64",
+          "heading_path": "JSON with Bytes as Base64 > Pydantic `bytes`",
+          "score": 9.9313,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 9.9313
+        }
+      ],
+      "first_match_rank": 2,
+      "reciprocal_rank": 0.5
+    },
+    {
+      "id": "v003",
+      "type": "lookup",
+      "question": "How do I read browser cookie values as handler parameters in my route?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/cookie-params.md"
+      ],
+      "top_score": 14.3076,
+      "top_vector_score": 0.809,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/how-to/custom-request-and-route.md",
+          "title": "Custom Request and APIRoute class",
+          "heading_path": "Custom Request and APIRoute class > Custom `APIRoute` class in a router",
+          "score": 14.3076,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 14.3076
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/how-to/custom-request-and-route.md",
+          "title": "Custom Request and APIRoute class",
+          "heading_path": "Custom Request and APIRoute class > Accessing the request body in an exception handler",
+          "score": 14.2742,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 14.2742
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/cookie-params.md",
+          "title": "Cookie Parameters",
+          "heading_path": "Cookie Parameters > Declare `Cookie` parameters",
+          "score": 14.0382,
+          "is_match": true,
+          "bm25_rank": 3,
+          "bm25_score": 14.0382
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/how-to/custom-request-and-route.md",
+          "title": "Custom Request and APIRoute class",
+          "heading_path": "Custom Request and APIRoute class > Custom `APIRoute` class in a router",
+          "score": 14.0022,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 14.0022
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/how-to/custom-request-and-route.md",
+          "title": "Custom Request and APIRoute class",
+          "heading_path": "Custom Request and APIRoute class > Accessing the request body in an exception handler",
+          "score": 13.7239,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 13.7239
+        }
+      ],
+      "first_match_rank": 3,
+      "reciprocal_rank": 0.3333
+    },
+    {
+      "id": "v004",
+      "type": "conceptual",
+      "question": "Why doesn't my cookie get sent when I click Execute in the docs page?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/cookie-params.md"
+      ],
+      "top_score": 22.5474,
+      "top_vector_score": 0.8327,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/cookie-param-models.md",
+          "title": "Cookie Parameter Models",
+          "heading_path": "Cookie Parameter Models > Check the Docs",
+          "score": 22.5474,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 22.5474
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/cookie-params.md",
+          "title": "Cookie Parameters",
+          "heading_path": "Cookie Parameters > Declare `Cookie` parameters",
+          "score": 17.7152,
+          "is_match": true,
+          "bm25_rank": 2,
+          "bm25_score": 17.7152
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/security/http-basic-auth.md",
+          "title": "HTTP Basic Auth",
+          "heading_path": "HTTP Basic Auth > Simple HTTP Basic Auth",
+          "score": 12.7737,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 12.7737
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/index.md",
+          "title": "FastAPI",
+          "heading_path": "FastAPI > Example upgrade > Interactive API docs upgrade",
+          "score": 11.7507,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 11.7507
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/advanced-dependencies.md",
+          "title": "Advanced Dependencies",
+          "heading_path": "Advanced Dependencies > Dependencies with `yield`, `HTTPException`, `except` and Background Tasks > Dependencies with `yield` and `scope`",
+          "score": 11.02,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 11.02
+        }
+      ],
+      "first_match_rank": 2,
+      "reciprocal_rank": 0.5
+    },
+    {
+      "id": "v005",
+      "type": "conceptual",
+      "question": "How do I stop my API from returning the user's password hash?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/response-model.md"
+      ],
+      "top_score": 13.2358,
+      "top_vector_score": 0.7701,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/security/oauth2-jwt.md",
+          "title": "OAuth2 with Password (and hashing), Bearer with JWT tokens",
+          "heading_path": "OAuth2 with Password (and hashing), Bearer with JWT tokens > Update the dependencies",
+          "score": 13.2358,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 13.2358
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/security/oauth2-jwt.md",
+          "title": "OAuth2 with Password (and hashing), Bearer with JWT tokens",
+          "heading_path": "OAuth2 with Password (and hashing), Bearer with JWT tokens > Update the `/token` *path operation*",
+          "score": 13.2156,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 13.2156
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/security/oauth2-scopes.md",
+          "title": "OAuth2 scopes",
+          "heading_path": "OAuth2 scopes > Use the `scopes`",
+          "score": 13.1112,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 13.1112
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/security/oauth2-scopes.md",
+          "title": "OAuth2 scopes",
+          "heading_path": "OAuth2 scopes > Verify the `username` and data shape",
+          "score": 13.0908,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 13.0908
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/security/oauth2-scopes.md",
+          "title": "OAuth2 scopes",
+          "heading_path": "OAuth2 scopes > Declare scopes in *path operations* and dependencies",
+          "score": 13.0806,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 13.0806
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "v006",
+      "type": "how-to-with-code",
+      "question": "How do I specify the schema of the returned data using standard Python type annotations on my endpoint function?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/response-model.md"
+      ],
+      "top_score": 21.1434,
+      "top_vector_score": 0.7841,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/extra-data-types.md",
+          "title": "Extra Data Types",
+          "heading_path": "Extra Data Types > Other data types",
+          "score": 21.1434,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 21.1434
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/async-tests.md",
+          "title": "Async Tests",
+          "heading_path": "Async Tests > HTTPX",
+          "score": 13.5099,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 13.5099
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/alternatives.md",
+          "title": "Alternatives, Inspiration and Comparisons",
+          "heading_path": "Alternatives, Inspiration and Comparisons > Previous tools > [Hug](https://github.com/hugapi/hug)",
+          "score": 13.2171,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 13.2171
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/opentelemetry.md",
+          "title": "OpenTelemetry",
+          "heading_path": "OpenTelemetry > Other monitoring services",
+          "score": 12.7888,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 12.7888
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/first-steps.md",
+          "title": "First Steps",
+          "heading_path": "First Steps > OpenAPI > OpenAPI and JSON Schema",
+          "score": 12.6876,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 12.6876
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "v007",
+      "type": "lookup",
+      "question": "How are time durations represented in requests and responses?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/extra-data-types.md"
+      ],
+      "top_score": 19.2947,
+      "top_vector_score": 0.7232,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/extra-data-types.md",
+          "title": "Extra Data Types",
+          "heading_path": "Extra Data Types > Other data types",
+          "score": 19.2947,
+          "is_match": true,
+          "bm25_rank": 1,
+          "bm25_score": 19.2947
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/how-to/custom-request-and-route.md",
+          "title": "Custom Request and APIRoute class",
+          "heading_path": "Custom Request and APIRoute class > Custom `APIRoute` class in a router",
+          "score": 18.9517,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 18.9517
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/how-to/custom-request-and-route.md",
+          "title": "Custom Request and APIRoute class",
+          "heading_path": "Custom Request and APIRoute class > Custom `APIRoute` class in a router",
+          "score": 18.3057,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 18.3057
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/extra-data-types.md",
+          "title": "Extra Data Types",
+          "heading_path": "Extra Data Types > Example",
+          "score": 12.2485,
+          "is_match": true,
+          "bm25_rank": 4,
+          "bm25_score": 12.2485
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/extra-data-types.md",
+          "title": "Extra Data Types",
+          "heading_path": "Extra Data Types > Example",
+          "score": 11.5819,
+          "is_match": true,
+          "bm25_rank": 5,
+          "bm25_score": 11.5819
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "v008",
+      "type": "conceptual",
+      "question": "What format do dates and times take in JSON requests and responses?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/extra-data-types.md"
+      ],
+      "top_score": 20.7038,
+      "top_vector_score": 0.7304,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/extra-data-types.md",
+          "title": "Extra Data Types",
+          "heading_path": "Extra Data Types > Other data types",
+          "score": 20.7038,
+          "is_match": true,
+          "bm25_rank": 1,
+          "bm25_score": 20.7038
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/custom-response.md",
+          "title": "Custom Response - HTML, Stream, File, others",
+          "heading_path": "Custom Response - HTML, Stream, File, others > Custom response class",
+          "score": 12.252,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 12.252
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/generate-clients.md",
+          "title": "Generating SDKs",
+          "heading_path": "Generating SDKs",
+          "score": 12.1756,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 12.1756
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/extra-data-types.md",
+          "title": "Extra Data Types",
+          "heading_path": "Extra Data Types > Other data types",
+          "score": 10.9593,
+          "is_match": true,
+          "bm25_rank": 4,
+          "bm25_score": 10.9593
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/middleware.md",
+          "title": "Middleware",
+          "heading_path": "Middleware > Create a middleware > Before and after the `response`",
+          "score": 10.3032,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 10.3032
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "v009",
+      "type": "conceptual",
+      "question": "How can I tell if someone tampered with a token?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/security/oauth2-jwt.md"
+      ],
+      "top_score": 9.7813,
+      "top_vector_score": 0.6904,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/handling-errors.md",
+          "title": "Handling Errors",
+          "heading_path": "Handling Errors",
+          "score": 9.7813,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 9.7813
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/openapi-callbacks.md",
+          "title": "OpenAPI Callbacks",
+          "heading_path": "OpenAPI Callbacks",
+          "score": 6.8491,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 6.8491
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/deployment/docker.md",
+          "title": "FastAPI in Containers - Docker",
+          "heading_path": "FastAPI in Containers - Docker > Build a Docker Image for FastAPI > Dockerfile > Behind a TLS Termination Proxy",
+          "score": 5.0567,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 5.0567
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/async.md",
+          "title": "Concurrency and async / await",
+          "heading_path": "Concurrency and async / await > Asynchronous Code > Parallel Burgers",
+          "score": 4.5629,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 4.5629
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/openapi-webhooks.md",
+          "title": "OpenAPI Webhooks",
+          "heading_path": "OpenAPI Webhooks",
+          "score": 4.4129,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 4.4129
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "v010",
+      "type": "lookup",
+      "question": "What is the format used by a JSON Web Token to serialize a JSON object into a transmission string?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/security/oauth2-jwt.md"
+      ],
+      "top_score": 17.2843,
+      "top_vector_score": 0.7172,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/encoder.md",
+          "title": "JSON Compatible Encoder",
+          "heading_path": "JSON Compatible Encoder > Using the `jsonable_encoder`",
+          "score": 17.2843,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 17.2843
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/server-sent-events.md",
+          "title": "Server-Sent Events (SSE)",
+          "heading_path": "Server-Sent Events (SSE)",
+          "score": 16.6862,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 16.6862
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/security/oauth2-jwt.md",
+          "title": "OAuth2 with Password (and hashing), Bearer with JWT tokens",
+          "heading_path": "OAuth2 with Password (and hashing), Bearer with JWT tokens > About JWT",
+          "score": 16.4862,
+          "is_match": true,
+          "bm25_rank": 3,
+          "bm25_score": 16.4862
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/encoder.md",
+          "title": "JSON Compatible Encoder",
+          "heading_path": "JSON Compatible Encoder > Using the `jsonable_encoder`",
+          "score": 15.359,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 15.359
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/custom-response.md",
+          "title": "Custom Response - HTML, Stream, File, others",
+          "heading_path": "Custom Response - HTML, Stream, File, others > JSON Responses",
+          "score": 15.0874,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 15.0874
+        }
+      ],
+      "first_match_rank": 3,
+      "reciprocal_rank": 0.3333
+    },
+    {
+      "id": "v011",
+      "type": "how-to-with-code",
+      "question": "How do I import the WebSocket class?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/advanced/websockets.md"
+      ],
+      "top_score": 9.731,
+      "top_vector_score": 0.7463,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/websockets.md",
+          "title": "WebSockets",
+          "heading_path": "WebSockets > Handling disconnections and multiple clients",
+          "score": 9.731,
+          "is_match": true,
+          "bm25_rank": 1,
+          "bm25_score": 9.731
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/testing-websockets.md",
+          "title": "Testing WebSockets",
+          "heading_path": "Testing WebSockets",
+          "score": 9.5872,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 9.5872
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/websockets.md",
+          "title": "WebSockets",
+          "heading_path": "WebSockets > Handling disconnections and multiple clients",
+          "score": 9.3537,
+          "is_match": true,
+          "bm25_rank": 3,
+          "bm25_score": 9.3537
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/websockets.md",
+          "title": "WebSockets",
+          "heading_path": "WebSockets > Create a `websocket`",
+          "score": 9.2851,
+          "is_match": true,
+          "bm25_rank": 4,
+          "bm25_score": 9.2851
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/websockets.md",
+          "title": "WebSockets",
+          "heading_path": "WebSockets > Await for messages and send messages",
+          "score": 8.9638,
+          "is_match": true,
+          "bm25_rank": 5,
+          "bm25_score": 8.9638
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "v012",
+      "type": "conceptual",
+      "question": "Can a mobile app connect to a WebSocket endpoint?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/advanced/websockets.md"
+      ],
+      "top_score": 19.8447,
+      "top_vector_score": 0.7553,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/websockets.md",
+          "title": "WebSockets",
+          "heading_path": "WebSockets > Handling disconnections and multiple clients",
+          "score": 19.8447,
+          "is_match": true,
+          "bm25_rank": 1,
+          "bm25_score": 19.8447
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/opentelemetry.md",
+          "title": "OpenTelemetry",
+          "heading_path": "OpenTelemetry > Customize telemetry > Trace WebSocket connections",
+          "score": 18.146,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 18.146
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/websockets.md",
+          "title": "WebSockets",
+          "heading_path": "WebSockets > WebSockets client > In production",
+          "score": 16.7999,
+          "is_match": true,
+          "bm25_rank": 3,
+          "bm25_score": 16.7999
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/websockets.md",
+          "title": "WebSockets",
+          "heading_path": "WebSockets > Handling disconnections and multiple clients",
+          "score": 16.3858,
+          "is_match": true,
+          "bm25_rank": 4,
+          "bm25_score": 16.3858
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/websockets.md",
+          "title": "WebSockets",
+          "heading_path": "WebSockets > WebSockets client > In production",
+          "score": 16.2365,
+          "is_match": true,
+          "bm25_rank": 5,
+          "bm25_score": 16.2365
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "v013",
+      "type": "how-to-with-code",
+      "question": "How do I define startup logic that must run before the application starts receiving incoming requests?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/advanced/events.md"
+      ],
+      "top_score": 21.7061,
+      "top_vector_score": 0.7718,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/events.md",
+          "title": "Lifespan Events",
+          "heading_path": "Lifespan Events",
+          "score": 21.7061,
+          "is_match": true,
+          "bm25_rank": 1,
+          "bm25_score": 21.7061
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/events.md",
+          "title": "Lifespan Events",
+          "heading_path": "Lifespan Events > Alternative Events (deprecated)",
+          "score": 20.2021,
+          "is_match": true,
+          "bm25_rank": 2,
+          "bm25_score": 20.2021
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/events.md",
+          "title": "Lifespan Events",
+          "heading_path": "Lifespan Events > Alternative Events (deprecated) > `startup` event",
+          "score": 17.58,
+          "is_match": true,
+          "bm25_rank": 3,
+          "bm25_score": 17.58
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/events.md",
+          "title": "Lifespan Events",
+          "heading_path": "Lifespan Events > Alternative Events (deprecated) > `startup` and `shutdown` together",
+          "score": 16.3603,
+          "is_match": true,
+          "bm25_rank": 4,
+          "bm25_score": 16.3603
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/events.md",
+          "title": "Lifespan Events",
+          "heading_path": "Lifespan Events > Lifespan",
+          "score": 16.2387,
+          "is_match": true,
+          "bm25_rank": 5,
+          "bm25_score": 16.2387
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "v014",
+      "type": "how-to-with-code",
+      "question": "How do I run cleanup code when my app shuts down?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/advanced/events.md"
+      ],
+      "top_score": 9.6962,
+      "top_vector_score": 0.7036,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/events.md",
+          "title": "Lifespan Events",
+          "heading_path": "Lifespan Events",
+          "score": 9.6962,
+          "is_match": true,
+          "bm25_rank": 1,
+          "bm25_score": 9.6962
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/opentelemetry.md",
+          "title": "OpenTelemetry",
+          "heading_path": "OpenTelemetry > Customize telemetry > Trace WebSocket connections",
+          "score": 9.2435,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 9.2435
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/events.md",
+          "title": "Lifespan Events",
+          "heading_path": "Lifespan Events > Alternative Events (deprecated) > `shutdown` event",
+          "score": 8.9113,
+          "is_match": true,
+          "bm25_rank": 3,
+          "bm25_score": 8.9113
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/events.md",
+          "title": "Lifespan Events",
+          "heading_path": "Lifespan Events > Alternative Events (deprecated)",
+          "score": 8.5236,
+          "is_match": true,
+          "bm25_rank": 4,
+          "bm25_score": 8.5236
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/dependencies/dependencies-with-yield.md",
+          "title": "Dependencies with yield",
+          "heading_path": "Dependencies with yield > Early exit and `scope`",
+          "score": 7.3466,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 7.3466
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "v015",
+      "type": "conceptual",
+      "question": "At what level does HTTPS encryption of the connection happen?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/deployment/https.md"
+      ],
+      "top_score": 28.5017,
+      "top_vector_score": 0.8091,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/deployment/https.md",
+          "title": "About HTTPS",
+          "heading_path": "About HTTPS > HTTPS for Developers > TLS with SNI Extension",
+          "score": 28.5017,
+          "is_match": true,
+          "bm25_rank": 1,
+          "bm25_score": 28.5017
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/deployment/https.md",
+          "title": "About HTTPS",
+          "heading_path": "About HTTPS",
+          "score": 22.6181,
+          "is_match": true,
+          "bm25_rank": 2,
+          "bm25_score": 22.6181
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/deployment/https.md",
+          "title": "About HTTPS",
+          "heading_path": "About HTTPS",
+          "score": 16.0905,
+          "is_match": true,
+          "bm25_rank": 3,
+          "bm25_score": 16.0905
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/deployment/https.md",
+          "title": "About HTTPS",
+          "heading_path": "About HTTPS > HTTPS for Developers > Decrypt the Request",
+          "score": 15.9198,
+          "is_match": true,
+          "bm25_rank": 4,
+          "bm25_score": 15.9198
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/deployment/https.md",
+          "title": "About HTTPS",
+          "heading_path": "About HTTPS > HTTPS for Developers > TLS with SNI Extension",
+          "score": 13.8117,
+          "is_match": true,
+          "bm25_rank": 5,
+          "bm25_score": 13.8117
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "v016",
+      "type": "lookup",
+      "question": "Can I use plain Python dataclasses for request and response models?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/advanced/dataclasses.md"
+      ],
+      "top_score": 19.4325,
+      "top_vector_score": 0.8264,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/dataclasses.md",
+          "title": "Using Dataclasses",
+          "heading_path": "Using Dataclasses",
+          "score": 19.4325,
+          "is_match": true,
+          "bm25_rank": 1,
+          "bm25_score": 19.4325
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/dataclasses.md",
+          "title": "Using Dataclasses",
+          "heading_path": "Using Dataclasses > Dataclasses in `response_model`",
+          "score": 18.8154,
+          "is_match": true,
+          "bm25_rank": 2,
+          "bm25_score": 18.8154
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/dataclasses.md",
+          "title": "Using Dataclasses",
+          "heading_path": "Using Dataclasses > Dataclasses in Nested Data Structures",
+          "score": 18.3083,
+          "is_match": true,
+          "bm25_rank": 3,
+          "bm25_score": 18.3083
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/dataclasses.md",
+          "title": "Using Dataclasses",
+          "heading_path": "Using Dataclasses > Dataclasses in Nested Data Structures",
+          "score": 16.8656,
+          "is_match": true,
+          "bm25_rank": 4,
+          "bm25_score": 16.8656
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/dataclasses.md",
+          "title": "Using Dataclasses",
+          "heading_path": "Using Dataclasses > Dataclasses in Nested Data Structures",
+          "score": 16.3789,
+          "is_match": true,
+          "bm25_rank": 5,
+          "bm25_score": 16.3789
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "v017",
+      "type": "how-to-with-code",
+      "question": "How do I run a second independent app inside my FastAPI app?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/advanced/sub-applications.md"
+      ],
+      "top_score": 13.7973,
+      "top_vector_score": 0.7593,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/sub-applications.md",
+          "title": "Sub Applications - Mounts",
+          "heading_path": "Sub Applications - Mounts > Mounting a **FastAPI** application",
+          "score": 13.7973,
+          "is_match": true,
+          "bm25_rank": 1,
+          "bm25_score": 13.7973
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/deployment/docker.md",
+          "title": "FastAPI in Containers - Docker",
+          "heading_path": "FastAPI in Containers - Docker > Build a Docker Image for FastAPI > Dockerfile > Use `CMD` - Exec Form",
+          "score": 13.6018,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 13.6018
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/index.md",
+          "title": "FastAPI",
+          "heading_path": "FastAPI > Performance",
+          "score": 13.2948,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 13.2948
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/deployment/manually.md",
+          "title": "Run a Server Manually",
+          "heading_path": "Run a Server Manually > Run the Server Program",
+          "score": 12.0241,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 12.0241
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/deployment/docker.md",
+          "title": "FastAPI in Containers - Docker",
+          "heading_path": "FastAPI in Containers - Docker > Build a Docker Image with a Single-File FastAPI",
+          "score": 11.8852,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 11.8852
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "v018",
+      "type": "how-to-with-code",
+      "question": "How can I send a big response piece by piece instead of loading it all in memory?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/advanced/stream-data.md"
+      ],
+      "top_score": 15.3549,
+      "top_vector_score": 0.6823,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/security/first-steps.md",
+          "title": "Security - First Steps",
+          "heading_path": "Security - First Steps",
+          "score": 15.3549,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 15.3549
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/history-design-future.md",
+          "title": "History, Design and Future",
+          "heading_path": "History, Design and Future > Future",
+          "score": 14.0651,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 14.0651
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/deployment/concepts.md",
+          "title": "Deployments Concepts",
+          "heading_path": "Deployments Concepts > Replication - Processes and Memory > Memory per Process",
+          "score": 12.7137,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 12.7137
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/deployment/concepts.md",
+          "title": "Deployments Concepts",
+          "heading_path": "Deployments Concepts > Replication - Processes and Memory > Multiple Processes - An Example",
+          "score": 12.3321,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 12.3321
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/deployment/concepts.md",
+          "title": "Deployments Concepts",
+          "heading_path": "Deployments Concepts > Replication - Processes and Memory > Server Memory",
+          "score": 11.9924,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 11.9924
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "v019",
+      "type": "conceptual",
+      "question": "Why is lru_cache recommended when reading application configurations from environment files?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/advanced/settings.md"
+      ],
+      "top_score": 27.04,
+      "top_vector_score": 0.7929,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/settings.md",
+          "title": "Settings and Environment Variables",
+          "heading_path": "Settings and Environment Variables > Recap",
+          "score": 27.04,
+          "is_match": true,
+          "bm25_rank": 1,
+          "bm25_score": 27.04
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/settings.md",
+          "title": "Settings and Environment Variables",
+          "heading_path": "Settings and Environment Variables > Reading a `.env` file > Creating the `Settings` only once with `lru_cache` > `lru_cache` Technical Details",
+          "score": 23.7956,
+          "is_match": true,
+          "bm25_rank": 2,
+          "bm25_score": 23.7956
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/settings.md",
+          "title": "Settings and Environment Variables",
+          "heading_path": "Settings and Environment Variables > Reading a `.env` file > Creating the `Settings` only once with `lru_cache`",
+          "score": 21.9355,
+          "is_match": true,
+          "bm25_rank": 3,
+          "bm25_score": 21.9355
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/settings.md",
+          "title": "Settings and Environment Variables",
+          "heading_path": "Settings and Environment Variables > Settings in a dependency > The main app file",
+          "score": 20.3257,
+          "is_match": true,
+          "bm25_rank": 4,
+          "bm25_score": 20.3257
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/settings.md",
+          "title": "Settings and Environment Variables",
+          "heading_path": "Settings and Environment Variables > Reading a `.env` file > Creating the `Settings` only once with `lru_cache` > `lru_cache` Technical Details",
+          "score": 18.6121,
+          "is_match": true,
+          "bm25_rank": 5,
+          "bm25_score": 18.6121
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "v020",
+      "type": "how-to-with-code",
+      "question": "How do I add several examples to my docs for a request body?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/schema-extra-example.md"
+      ],
+      "top_score": 10.5369,
+      "top_vector_score": 0.8097,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/using-request-directly.md",
+          "title": "Using the Request Directly",
+          "heading_path": "Using the Request Directly > Details about the `Request` object",
+          "score": 10.5369,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 10.5369
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/body.md",
+          "title": "Request Body",
+          "heading_path": "Request Body > Without Pydantic",
+          "score": 9.9485,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 9.9485
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/how-to/conditional-openapi.md",
+          "title": "Conditional OpenAPI",
+          "heading_path": "Conditional OpenAPI > About security, APIs, and docs",
+          "score": 9.5722,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 9.5722
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/body.md",
+          "title": "Request Body",
+          "heading_path": "Request Body",
+          "score": 9.1695,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 9.1695
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/schema-extra-example.md",
+          "title": "Declare Request Example Data",
+          "heading_path": "Declare Request Example Data > Technical Details",
+          "score": 9.1656,
+          "is_match": true,
+          "bm25_rank": 5,
+          "bm25_score": 9.1656
+        }
+      ],
+      "first_match_rank": 5,
+      "reciprocal_rank": 0.2
+    },
+    {
+      "id": "v021",
+      "type": "unanswerable",
+      "question": "How do I add two-factor authentication with TOTP?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 8.6618,
+      "top_vector_score": 0.6545,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/dependencies/classes-as-dependencies.md",
+          "title": "Classes as Dependencies",
+          "heading_path": "Classes as Dependencies > What makes a dependency",
+          "score": 8.6618,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 8.6618
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/first-steps.md",
+          "title": "First Steps",
+          "heading_path": "First Steps > OpenAPI > What is OpenAPI for",
+          "score": 7.1495,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 7.1495
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/response-model.md",
+          "title": "Response Model - Return Type",
+          "heading_path": "Response Model - Return Type > Add an output model > `response_model` or Return Type",
+          "score": 7.0492,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 7.0492
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/sub-applications.md",
+          "title": "Sub Applications - Mounts",
+          "heading_path": "Sub Applications - Mounts > Mounting a **FastAPI** application",
+          "score": 6.9518,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 6.9518
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/security/index.md",
+          "title": "Security",
+          "heading_path": "Security > OAuth2",
+          "score": 6.8058,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 6.8058
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "v022",
+      "type": "unanswerable",
+      "question": "How do I consume messages from an Apache Kafka topic?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 10.094,
+      "top_vector_score": 0.6345,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/external-links.md",
+          "title": "External Links",
+          "heading_path": "External Links > GitHub Repositories",
+          "score": 10.094,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 10.094
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/deployment/concepts.md",
+          "title": "Deployments Concepts",
+          "heading_path": "Deployments Concepts > Replication - Processes and Memory > Memory per Process",
+          "score": 8.4326,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 8.4326
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/deployment/concepts.md",
+          "title": "Deployments Concepts",
+          "heading_path": "Deployments Concepts > Replication - Processes and Memory > Server Memory",
+          "score": 8.2443,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 8.2443
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/external-links.md",
+          "title": "External Links",
+          "heading_path": "External Links",
+          "score": 7.9842,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 7.9842
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/metadata.md",
+          "title": "Metadata and Docs URLs",
+          "heading_path": "Metadata and Docs URLs > License identifier",
+          "score": 7.623,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 7.623
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "v023",
+      "type": "unanswerable",
+      "question": "How do I process gRPC requests alongside HTTP routes?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 9.9248,
+      "top_vector_score": 0.7553,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/deployment/https.md",
+          "title": "About HTTPS",
+          "heading_path": "About HTTPS > HTTPS for Developers > Decrypt the Request",
+          "score": 9.9248,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 9.9248
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/how-to/extending-openapi.md",
+          "title": "Extending OpenAPI",
+          "heading_path": "Extending OpenAPI > The normal process",
+          "score": 9.7712,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 9.7712
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/how-to/custom-request-and-route.md",
+          "title": "Custom Request and APIRoute class",
+          "heading_path": "Custom Request and APIRoute class > Custom `APIRoute` class in a router",
+          "score": 9.4241,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 9.4241
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/how-to/custom-request-and-route.md",
+          "title": "Custom Request and APIRoute class",
+          "heading_path": "Custom Request and APIRoute class > Handling custom request body encodings > Create a custom `GzipRoute` class",
+          "score": 9.4005,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 9.4005
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/how-to/custom-request-and-route.md",
+          "title": "Custom Request and APIRoute class",
+          "heading_path": "Custom Request and APIRoute class > Handling custom request body encodings > Create a custom `GzipRequest` class",
+          "score": 9.3435,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 9.3435
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "v024",
+      "type": "unanswerable",
+      "question": "How do I send push notifications using Firebase?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 13.143,
+      "top_vector_score": 0.6895,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/background-tasks.md",
+          "title": "Background Tasks",
+          "heading_path": "Background Tasks > Using `BackgroundTasks`",
+          "score": 13.143,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 13.143
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/background-tasks.md",
+          "title": "Background Tasks",
+          "heading_path": "Background Tasks > Create a task function",
+          "score": 13.119,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 13.119
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/server-sent-events.md",
+          "title": "Server-Sent Events (SSE)",
+          "heading_path": "Server-Sent Events (SSE) > What are Server-Sent Events?",
+          "score": 12.8508,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 12.8508
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/openapi-callbacks.md",
+          "title": "OpenAPI Callbacks",
+          "heading_path": "OpenAPI Callbacks > The normal **FastAPI** app",
+          "score": 12.3791,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 12.3791
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/openapi-callbacks.md",
+          "title": "OpenAPI Callbacks",
+          "heading_path": "OpenAPI Callbacks > Write the callback documentation code > Create the callback *path operation*",
+          "score": 12.2171,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 12.2171
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "v025",
+      "type": "unanswerable",
+      "question": "What temperature should sourdough bread be baked at?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 0.0,
+      "top_vector_score": 0.5331,
+      "gate_refused": true,
+      "retrieved": [],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "v026",
+      "type": "unanswerable",
+      "question": "How many kilometers is the earth from the sun?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 5.1631,
+      "top_vector_score": 0.4975,
+      "gate_refused": true,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/history-design-future.md",
+          "title": "History, Design and Future",
+          "heading_path": "History, Design and Future > Future",
+          "score": 5.1631,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 5.1631
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/security/index.md",
+          "title": "Security",
+          "heading_path": "Security",
+          "score": 5.0042,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 5.0042
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/path-params.md",
+          "title": "Path Parameters",
+          "heading_path": "Path Parameters > Standards-based benefits, alternative documentation",
+          "score": 4.8313,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 4.8313
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/deployment/docker.md",
+          "title": "FastAPI in Containers - Docker",
+          "heading_path": "FastAPI in Containers - Docker > Container Images",
+          "score": 4.3708,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 4.3708
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/security/oauth2-jwt.md",
+          "title": "OAuth2 with Password (and hashing), Bearer with JWT tokens",
+          "heading_path": "OAuth2 with Password (and hashing), Bearer with JWT tokens > Recap",
+          "score": 4.3338,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 4.3338
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "v027",
+      "type": "unanswerable",
+      "question": "Who won the men's 100-meter sprint in the 2024 Olympics?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 6.427,
+      "top_vector_score": 0.4517,
+      "gate_refused": true,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/opentelemetry.md",
+          "title": "OpenTelemetry",
+          "heading_path": "OpenTelemetry > Customize telemetry > Configure providers and exporters",
+          "score": 6.427,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 6.427
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/features.md",
+          "title": "Features",
+          "heading_path": "Features > FastAPI features > Tested",
+          "score": 5.5466,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 5.5466
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/testing.md",
+          "title": "Testing",
+          "heading_path": "Testing > Run it",
+          "score": 5.4222,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 5.4222
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/sql-databases.md",
+          "title": "SQL (Relational) Databases",
+          "heading_path": "SQL (Relational) Databases > Create the App with a Single Model > Read Heroes",
+          "score": 5.2379,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 5.2379
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/settings.md",
+          "title": "Settings and Environment Variables",
+          "heading_path": "Settings and Environment Variables > Pydantic `Settings` > Install `pydantic-settings`",
+          "score": 5.2379,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 5.2379
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "v028",
+      "type": "unanswerable",
+      "question": "What ingredients are needed to make chocolate chip cookies?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 8.8835,
+      "top_vector_score": 0.5988,
+      "gate_refused": true,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/cookie-param-models.md",
+          "title": "Cookie Parameter Models",
+          "heading_path": "Cookie Parameter Models > Cookies with a Pydantic Model",
+          "score": 8.8835,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 8.8835
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/response-cookies.md",
+          "title": "Response Cookies",
+          "heading_path": "Response Cookies > Return a `Response` directly",
+          "score": 8.7095,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 8.7095
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/cookie-param-models.md",
+          "title": "Cookie Parameter Models",
+          "heading_path": "Cookie Parameter Models > Optional Cookie Parameter Models",
+          "score": 8.4225,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 8.4225
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/response-cookies.md",
+          "title": "Response Cookies",
+          "heading_path": "Response Cookies > Use a `Response` parameter",
+          "score": 8.2981,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 8.2981
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/cookie-params.md",
+          "title": "Cookie Parameters",
+          "heading_path": "Cookie Parameters > Declare `Cookie` parameters",
+          "score": 8.212,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 8.212
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "v029",
+      "type": "unanswerable",
+      "question": "How do I upload files to Amazon S3?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 12.2074,
+      "top_vector_score": 0.635,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/request-files.md",
+          "title": "Request Files",
+          "heading_path": "Request Files",
+          "score": 12.2074,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 12.2074
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/request-files.md",
+          "title": "Request Files",
+          "heading_path": "Request Files > Multiple File Uploads > Multiple File Uploads with Additional Metadata",
+          "score": 11.5849,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 11.5849
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/request-files.md",
+          "title": "Request Files",
+          "heading_path": "Request Files > Optional File Upload",
+          "score": 11.418,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 11.418
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/request-files.md",
+          "title": "Request Files",
+          "heading_path": "Request Files > Multiple File Uploads",
+          "score": 10.5713,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 10.5713
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/request-forms-and-files.md",
+          "title": "Request Forms and Files",
+          "heading_path": "Request Forms and Files",
+          "score": 9.4514,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 9.4514
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "v030",
+      "type": "unanswerable",
+      "question": "How do I add API versioning to my routes?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 12.2214,
+      "top_vector_score": 0.7404,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/how-to/extending-openapi.md",
+          "title": "Extending OpenAPI",
+          "heading_path": "Extending OpenAPI > The normal process",
+          "score": 12.2214,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 12.2214
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/bigger-applications.md",
+          "title": "Bigger Applications - Multiple Files",
+          "heading_path": "Bigger Applications - Multiple Files > Include an `APIRouter` in another",
+          "score": 10.5996,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 10.5996
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/openapi-callbacks.md",
+          "title": "OpenAPI Callbacks",
+          "heading_path": "OpenAPI Callbacks > Write the callback documentation code > Add the callback router",
+          "score": 9.5244,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 9.5244
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/how-to/extending-openapi.md",
+          "title": "Extending OpenAPI",
+          "heading_path": "Extending OpenAPI > Overriding the defaults > Modify the OpenAPI schema",
+          "score": 8.91,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 8.91
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/middleware.md",
+          "title": "Middleware",
+          "heading_path": "Middleware > Multiple middleware execution order",
+          "score": 7.8919,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 7.8919
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "v031",
+      "type": "unanswerable",
+      "question": "How do I set up a health check endpoint?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 16.2995,
+      "top_vector_score": 0.621,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/opentelemetry.md",
+          "title": "OpenTelemetry",
+          "heading_path": "OpenTelemetry > Choose what to record",
+          "score": 16.2995,
+          "is_match": false,
+          "bm25_rank": 1,
+          "bm25_score": 16.2995
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/opentelemetry.md",
+          "title": "OpenTelemetry",
+          "heading_path": "OpenTelemetry > Other monitoring services",
+          "score": 9.5167,
+          "is_match": false,
+          "bm25_rank": 2,
+          "bm25_score": 9.5167
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/frontend.md",
+          "title": "Frontend",
+          "heading_path": "Frontend > Check Directory",
+          "score": 7.3704,
+          "is_match": false,
+          "bm25_rank": 3,
+          "bm25_score": 7.3704
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/opentelemetry.md",
+          "title": "OpenTelemetry",
+          "heading_path": "OpenTelemetry > Customize telemetry > Trace WebSocket connections",
+          "score": 7.2879,
+          "is_match": false,
+          "bm25_rank": 4,
+          "bm25_score": 7.2879
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/strict-content-type.md",
+          "title": "Strict Content-Type Checking",
+          "heading_path": "Strict Content-Type Checking > Open Internet",
+          "score": 7.1935,
+          "is_match": false,
+          "bm25_rank": 5,
+          "bm25_score": 7.1935
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    }
+  ]
+}

@@ -140,6 +140,7 @@ def run_evaluation(
     pool: int = 50,
     rrf_k: int = 60,
     run_name: str = "baseline",
+    questions_file: str = "eval/questions.jsonl",
 ) -> Dict[str, Any]:
     embedder = get_embedder()
     embedding_device = str(embedder.model.device)
@@ -322,10 +323,12 @@ def run_evaluation(
 
     eval_output = {
         "run_name": run_name,
+        "questions_file": str(questions_file),
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "git_commit": get_git_commit_hash(),
         "embedding_device": embedding_device,
         "config": {
+            "questions_file": str(questions_file),
             "retriever": retriever,
             "keyword_retriever": "bm25" if retriever == "hybrid-bm25" else ("fulltext" if retriever == "hybrid" else None),
             "k": k,
@@ -456,6 +459,7 @@ def main():
         pool=args.pool,
         rrf_k=args.rrf_k,
         run_name=args.run_name,
+        questions_file=str(questions_file),
     )
 
     # Write output to eval/results/<run_name>.json
