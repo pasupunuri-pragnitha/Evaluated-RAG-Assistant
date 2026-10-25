@@ -139,7 +139,7 @@ def ask_question(request: AskRequest):
 
     # 5. Citation Validation and Refusal Handling
     cleaned_answer, refused, sources_cited, warnings = process_answer_and_citations(
-        raw_answer, k=request.k, sources_retrieved=sources_retrieved
+        raw_answer, k=request.k, sources_retrieved=sources_retrieved, chunks=chunks
     )
 
     total_ms = round((time.perf_counter() - start_total) * 1000, 2)

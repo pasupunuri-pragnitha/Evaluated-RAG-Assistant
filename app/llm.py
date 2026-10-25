@@ -9,11 +9,11 @@ from retrieval.vector import SearchResult
 logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = f"""You are an expert technical documentation assistant.
-Answer the user's question using ONLY the facts and code provided in the numbered context passages below.
+Answer the user's question using ONLY the facts and code provided in the context blocks below.
 
 Strict instructions:
-1. Answer ONLY from the provided context passages. Do NOT extrapolate, speculate, or introduce outside knowledge.
-2. Cite the context passages you use with brackets, such as [1], [2], etc.
+1. Answer ONLY from the provided context blocks. Do NOT extrapolate, speculate, or introduce outside knowledge.
+2. Cite the context sources you use with brackets referring to the source id, such as [1], [2], etc. Cite only as [n] and never repeat source headers or XML tags in your answer.
 3. If the provided context does not contain enough information to answer the question, you must reply strictly with: "{REFUSAL_MESSAGE}"
 4. Be direct, factual, and concise."""
 
@@ -48,11 +48,11 @@ class LLMClient:
         context_blocks = []
         for i, chunk in enumerate(chunks, 1):
             context_blocks.append(
-                f"[{i}] Document: {chunk.source_path} | Section: {chunk.heading_path}\n{chunk.content}"
+                f'<source id="{i}" path="{chunk.source_path}" section="{chunk.heading_path}">\n{chunk.content}\n</source>'
             )
         formatted_context = "\n\n".join(context_blocks)
 
-        user_content = f"Context Passages:\n{formatted_context}\n\nQuestion: {query}"
+        user_content = f"Context:\n{formatted_context}\n\nQuestion: {query}"
 
         payload = {
             "model": self.model,
@@ -86,9 +86,11 @@ def process_answer_and_citations(
     answer: str,
     k: int,
     sources_retrieved: List[SourceItem],
+    chunks: List[SearchResult] | None = None,
 ) -> Tuple[str, bool, List[SourceItem], List[str]]:
     """
-    Validates citations, detects refusal, strips invalid brackets, and filters cited sources.
+    Validates citations, detects refusal, strips invalid brackets, filters cited sources,
+    and checks code grounding.
     Returns: (cleaned_answer, refused, sources_cited, warnings)
     """
     warnings: List[str] = []
@@ -118,5 +120,40 @@ def process_answer_and_citations(
 
     if not found_citation_indices:
         warnings.append("no citations in answer")
+
+    # Code grounding warning: for every fenced code block in the answer, check that
+    # most of its non-empty lines (normalized whitespace) appear in the cited chunks' content.
+    # If not, add "code block not found in cited sources" to warnings.
+    code_blocks = re.findall(
+        r"(?:```|~~~)[^\n]*\n?(.*?)(?:```|~~~)", cleaned_answer, re.DOTALL
+    )
+    if code_blocks:
+        cited_indices = {s.index for s in sources_cited}
+        cited_contents: List[str] = []
+        if chunks:
+            for i, chunk in enumerate(chunks, 1):
+                if i in cited_indices:
+                    cited_contents.append(chunk.content)
+
+        norm_cited_chunks = [" ".join(c.split()) for c in cited_contents]
+
+        for block in code_blocks:
+            non_empty_lines = [
+                " ".join(line.split())
+                for line in block.splitlines()
+                if line.strip()
+            ]
+            if not non_empty_lines:
+                continue
+
+            matched = sum(
+                1
+                for line in non_empty_lines
+                if any(line in norm_chunk for norm_chunk in norm_cited_chunks)
+            )
+
+            if matched <= len(non_empty_lines) / 2:
+                if "code block not found in cited sources" not in warnings:
+                    warnings.append("code block not found in cited sources")
 
     return cleaned_answer, False, sources_cited, warnings
