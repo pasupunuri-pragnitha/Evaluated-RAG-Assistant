@@ -22,10 +22,12 @@ Baseline: vector-only retrieval. Hit@1 0.677, Hit@5 0.935, MRR 0.768
 ### Metrics
 
 | Retriever | Hit@1 | Hit@5 | MRR |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Vector baseline | 0.677 | 0.935 | 0.768 |
 | Fulltext only | 0.226 | 0.581 | 0.361 |
-| Hybrid RRF (k=60, pool=50) | 0.581 | 0.774 | 0.672 |
+| Hybrid RRF (k=60, pool=50) | 0.548 | 0.774 | 0.651 |
+
+*Note: The original `hybrid-rrf-v1` run (MRR 0.672, Hit@1 0.581) depended on non-deterministic tie ordering in Postgres. Once score ties were broken deterministically by `chunk_id`, q029 fell from rank 1 to rank 3.*
 
 ### Question transitions
 
@@ -38,7 +40,7 @@ Baseline: vector-only retrieval. Hit@1 0.677, Hit@5 0.935, MRR 0.768
   - q030: "How do I paginate large database query results in endpoints?" (Rank 1 -> Miss)
 
 - **4 questions improved:**
-  - q004: "How do I restrict a path parameter so users can only pass predefined choices?" (Miss -> Rank 1)
+  - q004: "How do I restrict a path parameter so users can only pass predefined choices?" (Miss -> Rank 1; page-level match only: the fulltext top result for q004 was the "Order matters" chunk of path-params.md, not the Enum chunk)
   - q012: "How do I throw a 404 message when a record is not found in the database?" (Rank 3 -> Rank 2)
   - q017: "Why does the browser block my React frontend when making calls to my API on a different port?" (Rank 2 -> Rank 1)
   - q036: "Why is it better to install package requirements in a separate step before putting all my python files into the container?" (Rank 2 -> Rank 1)
@@ -46,6 +48,30 @@ Baseline: vector-only retrieval. Hit@1 0.677, Hit@5 0.935, MRR 0.768
 ### Hypothesis
 
 Postgres `ts_rank_cd` has no IDF weighting and the OR query rewards chunks repeating common words, so the full-text ranking is noisy and RRF gives it equal weight.
+
+### Diagnostics
+
+- 5 of the 6 lost questions had the expected chunk at fulltext rank 11-41; q003 was at rank 173.
+- Only 21% of fulltext top-5 chunks came from an expected page.
+- The IDF hypothesis is supported, not proven.
+
+## Hybrid + BM25
+
+Replacing Postgres full-text search with in-memory BM25Okapi (k1=1.5, b=0.75, Snowball English stemming, stopwords removed):
+
+### Metrics
+
+| Retriever | Hit@1 | Hit@5 | MRR |
+| --- | --- | --- | --- |
+| Vector baseline | 0.677 | 0.935 | 0.768 |
+| BM25 only | 0.581 | 0.871 | 0.715 |
+| Hybrid BM25 (k=60, pool=50) | 0.710 | 0.935 | 0.809 |
+
+### Caveats
+
+- The difference versus vector baseline is 1-2 questions.
+- BM25 indexes heading text (`heading_path + "\n" + content`), whereas the fulltext tsv column did not.
+- v1 questions were AI-drafted and may favor keyword overlap.
 
 ## Score gate
 
