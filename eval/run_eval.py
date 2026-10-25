@@ -9,7 +9,9 @@ from typing import Any, Dict, List, Set
 
 from app.config import settings
 from db.connection import get_db_connection
-from retrieval.vector import get_embedder, search
+from retrieval.fulltext import search as fulltext_search
+from retrieval.hybrid import search as hybrid_search
+from retrieval.vector import get_embedder, search as vector_search
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -131,8 +133,11 @@ def compute_percentiles(values: List[float]) -> Dict[str, float]:
 
 def run_evaluation(
     questions: List[Dict[str, Any]],
+    retriever: str = "vector",
     k: int = 5,
     min_score: float = 0.60,
+    pool: int = 50,
+    rrf_k: int = 60,
     run_name: str = "baseline",
 ) -> Dict[str, Any]:
     embedder = get_embedder()
@@ -146,8 +151,8 @@ def run_evaluation(
     hits_5 = 0
     reciprocal_ranks: List[float] = []
 
-    answerable_top_scores: List[float] = []
-    unanswerable_top_scores: List[float] = []
+    answerable_top_vector_scores: List[float] = []
+    unanswerable_top_vector_scores: List[float] = []
 
     answerable_false_refusals = 0
     unanswerable_refusals = 0
@@ -157,93 +162,121 @@ def run_evaluation(
     # Per-type tracking for answerable questions
     type_stats: Dict[str, Dict[str, Any]] = {}
 
-    print(f"Evaluating {len(questions)} questions (k={k}, MIN_SCORE={min_score})...\n")
+    print(
+        f"Evaluating {len(questions)} questions [retriever={retriever}, k={k}, "
+        f"MIN_SCORE={min_score}{f', pool={pool}, rrf_k={rrf_k}' if retriever == 'hybrid' else ''}]...\n"
+    )
 
-    for item in questions:
-        q_id = item["id"]
-        q_text = item["question"]
-        q_type = item.get("type", "unknown")
-        is_answerable = item["answerable"]
-        expected_sources_list = item.get("expected_sources", [])
-        expected_sources_set = set(expected_sources_list)
+    with get_db_connection() as conn:
+        for item in questions:
+            q_id = item["id"]
+            q_text = item["question"]
+            q_type = item.get("type", "unknown")
+            is_answerable = item["answerable"]
+            expected_sources_list = item.get("expected_sources", [])
+            expected_sources_set = set(expected_sources_list)
 
-        results = search(query=q_text, k=k)
-        top_score = round(results[0].score, 4) if results else 0.0
-        gate_refused = top_score < min_score
+            if retriever == "vector":
+                results = vector_search(query=q_text, k=k, conn=conn)
+                top_vector_score = round(results[0].score, 4) if results else 0.0
+                top_score = top_vector_score
+            elif retriever == "fulltext":
+                results = fulltext_search(query=q_text, k=k, conn=conn)
+                top_score = round(results[0].score, 4) if results else 0.0
+                v_res = vector_search(query=q_text, k=1, conn=conn)
+                top_vector_score = round(v_res[0].score, 4) if v_res else 0.0
+            elif retriever == "hybrid":
+                h_res = hybrid_search(query=q_text, k=k, pool=pool, rrf_k=rrf_k, conn=conn)
+                results = h_res.results
+                top_vector_score = round(h_res.top_vector_score, 4)
+                top_score = round(results[0].rrf_score, 6) if results else 0.0
+            else:
+                raise ValueError(f"Unknown retriever: {retriever}")
 
-        q_res: Dict[str, Any] = {
-            "id": q_id,
-            "type": q_type,
-            "question": q_text,
-            "answerable": is_answerable,
-            "expected_sources": expected_sources_list,
-            "top_score": top_score,
-            "gate_refused": gate_refused,
-            "retrieved": [
-                {
+            gate_refused = top_vector_score < min_score
+
+            retrieved_chunks = []
+            for rank, r in enumerate(results, 1):
+                chunk_dict = {
                     "rank": rank,
                     "source_path": r.source_path,
                     "title": r.title,
                     "heading_path": r.heading_path,
-                    "score": round(r.score, 4),
+                    "score": round(r.score, 6 if retriever == "hybrid" else 4),
                     "is_match": r.source_path in expected_sources_set,
                 }
-                for rank, r in enumerate(results, 1)
-            ],
-            "first_match_rank": None,
-            "reciprocal_rank": 0.0,
-        }
+                if hasattr(r, "vector_score"):
+                    chunk_dict["vector_score"] = round(r.vector_score, 4) if r.vector_score is not None else None
+                if hasattr(r, "vector_rank"):
+                    chunk_dict["vector_rank"] = r.vector_rank
+                if hasattr(r, "fulltext_rank"):
+                    chunk_dict["fulltext_rank"] = r.fulltext_rank
+                retrieved_chunks.append(chunk_dict)
 
-        if is_answerable:
-            total_answerable += 1
-            answerable_top_scores.append(top_score)
+            q_res: Dict[str, Any] = {
+                "id": q_id,
+                "type": q_type,
+                "question": q_text,
+                "answerable": is_answerable,
+                "expected_sources": expected_sources_list,
+                "top_score": top_score,
+                "top_vector_score": top_vector_score,
+                "gate_refused": gate_refused,
+                "retrieved": retrieved_chunks,
+                "first_match_rank": None,
+                "reciprocal_rank": 0.0,
+            }
 
-            if q_type not in type_stats:
-                type_stats[q_type] = {
-                    "count": 0,
-                    "hits_1": 0,
-                    "hits_3": 0,
-                    "hits_5": 0,
-                    "rr": [],
-                }
-            type_stats[q_type]["count"] += 1
+            if is_answerable:
+                total_answerable += 1
+                answerable_top_vector_scores.append(top_vector_score)
 
-            if gate_refused:
-                answerable_false_refusals += 1
+                if q_type not in type_stats:
+                    type_stats[q_type] = {
+                        "count": 0,
+                        "hits_1": 0,
+                        "hits_3": 0,
+                        "hits_5": 0,
+                        "rr": [],
+                    }
+                type_stats[q_type]["count"] += 1
 
-            first_rank = None
-            for rank, r in enumerate(results, 1):
-                if r.source_path in expected_sources_set:
-                    first_rank = rank
-                    break
+                if gate_refused:
+                    answerable_false_refusals += 1
 
-            if first_rank is not None:
-                q_res["first_match_rank"] = first_rank
-                rr = 1.0 / first_rank
-                q_res["reciprocal_rank"] = round(rr, 4)
-                reciprocal_ranks.append(rr)
-                type_stats[q_type]["rr"].append(rr)
+                first_rank = None
+                for rank, r in enumerate(results, 1):
+                    if r.source_path in expected_sources_set:
+                        first_rank = rank
+                        break
 
-                if first_rank <= 1:
-                    hits_1 += 1
-                    type_stats[q_type]["hits_1"] += 1
-                if first_rank <= 3:
-                    hits_3 += 1
-                    type_stats[q_type]["hits_3"] += 1
-                if first_rank <= 5:
-                    hits_5 += 1
-                    type_stats[q_type]["hits_5"] += 1
+                if first_rank is not None:
+                    q_res["first_match_rank"] = first_rank
+                    rr = 1.0 / first_rank
+                    q_res["reciprocal_rank"] = round(rr, 4)
+                    reciprocal_ranks.append(rr)
+                    type_stats[q_type]["rr"].append(rr)
+
+                    if first_rank <= 1:
+                        hits_1 += 1
+                        type_stats[q_type]["hits_1"] += 1
+                    if first_rank <= 3:
+                        hits_3 += 1
+                        type_stats[q_type]["hits_3"] += 1
+                    if first_rank <= 5:
+                        hits_5 += 1
+                        type_stats[q_type]["hits_5"] += 1
+                else:
+                    reciprocal_ranks.append(0.0)
+                    type_stats[q_type]["rr"].append(0.0)
+
             else:
-                reciprocal_ranks.append(0.0)
-                type_stats[q_type]["rr"].append(0.0)
+                total_unanswerable += 1
+                unanswerable_top_vector_scores.append(top_vector_score)
+                if gate_refused:
+                    unanswerable_refusals += 1
 
-        else:
-            total_unanswerable += 1
-            unanswerable_top_scores.append(top_score)
-            if gate_refused:
-                unanswerable_refusals += 1
-
-        per_question_results.append(q_res)
+            per_question_results.append(q_res)
 
     # Metrics computation
     hit_at_1 = round(hits_1 / total_answerable, 4) if total_answerable else 0.0
@@ -269,8 +302,8 @@ def run_evaluation(
         round(answerable_false_refusals / total_answerable, 4) if total_answerable else 0.0
     )
 
-    ans_stats = compute_percentiles(answerable_top_scores)
-    unans_stats = compute_percentiles(unanswerable_top_scores)
+    ans_stats = compute_percentiles(answerable_top_vector_scores)
+    unans_stats = compute_percentiles(unanswerable_top_vector_scores)
 
     eval_output = {
         "run_name": run_name,
@@ -278,8 +311,11 @@ def run_evaluation(
         "git_commit": get_git_commit_hash(),
         "embedding_device": embedding_device,
         "config": {
+            "retriever": retriever,
             "k": k,
             "min_score": min_score,
+            "pool": pool if retriever == "hybrid" else None,
+            "rrf_k": rrf_k if retriever == "hybrid" else None,
             "embedding_model": settings.embedding_model_name,
             "llm_model": settings.llm_model,
         },
@@ -304,7 +340,7 @@ def run_evaluation(
 
     # Print Summary Tables
     print("=" * 64)
-    print(f"RETRIEVAL EVALUATION RESULTS: {run_name}")
+    print(f"RETRIEVAL EVALUATION RESULTS: {run_name} (retriever={retriever})")
     print("=" * 64)
     print(f"Total Questions    : {len(questions)}")
     print(f"  Answerable       : {total_answerable}")
@@ -327,7 +363,7 @@ def run_evaluation(
     print(f"Unanswerable Refusal Rate  (Gate Success) : {unanswerable_refusal_rate:.4f} ({unanswerable_refusals}/{total_unanswerable})")
     print(f"Answerable False-Refusal   (Gate Error)   : {answerable_false_refusal_rate:.4f} ({answerable_false_refusals}/{total_answerable})")
     print("-" * 64)
-    print("SCORE DISTRIBUTION SIDE-BY-SIDE (Top Retrieval Score):")
+    print("SCORE DISTRIBUTION SIDE-BY-SIDE (Top Vector Score for Gate):")
     print(f"{'Statistic':<12} | {'Answerable':<12} | {'Unanswerable':<12}")
     print("-" * 42)
     for stat in ["count", "min", "p25", "median", "p75", "max", "mean"]:
@@ -357,12 +393,31 @@ def main():
     parser = argparse.ArgumentParser(description="Evaluate retrieval baseline on questions dataset")
     parser.add_argument("--questions", type=str, default="eval/questions.jsonl", help="Path to questions.jsonl")
     parser.add_argument("--run-name", type=str, default="baseline", help="Identifier name for this evaluation run")
+    parser.add_argument(
+        "--retriever",
+        type=str,
+        choices=["vector", "fulltext", "hybrid"],
+        default="vector",
+        help="Retriever type: vector, fulltext, or hybrid (default: vector)",
+    )
     parser.add_argument("-k", type=int, default=5, help="Number of retrieval chunks (default: 5)")
     parser.add_argument(
         "--min-score",
         type=float,
         default=settings.min_score,
         help=f"Score gate refusal threshold (default: {settings.min_score})",
+    )
+    parser.add_argument(
+        "--pool",
+        type=int,
+        default=50,
+        help="Retrieval candidate pool size for hybrid search (default: 50)",
+    )
+    parser.add_argument(
+        "--rrf-k",
+        type=int,
+        default=60,
+        help="RRF smoothing constant for hybrid search (default: 60)",
     )
     args = parser.parse_args()
 
@@ -379,8 +434,11 @@ def main():
 
     results = run_evaluation(
         questions=questions,
+        retriever=args.retriever,
         k=args.k,
         min_score=args.min_score,
+        pool=args.pool,
+        rrf_k=args.rrf_k,
         run_name=args.run_name,
     )
 
