@@ -1,0 +1,37 @@
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+
+# Environment and secrets
+.env
+*.env
+!.env.example
+
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Model & Data caches
+.cache/
+data/cache/
+models/
+huggingface/
+.huggingface/
+sentence_transformers/
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
