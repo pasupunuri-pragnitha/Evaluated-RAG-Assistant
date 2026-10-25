@@ -1,0 +1,2462 @@
+{
+  "run_name": "fulltext-only",
+  "timestamp": "2026-10-25T17:41:28.169130+00:00",
+  "git_commit": "3eceb7ead4ceb323b0905605619e9376d6e2a22d",
+  "embedding_device": "cpu",
+  "config": {
+    "retriever": "fulltext",
+    "k": 5,
+    "min_score": 0.6,
+    "pool": null,
+    "rrf_k": null,
+    "embedding_model": "BAAI/bge-small-en-v1.5",
+    "llm_model": "llama31-rag"
+  },
+  "metrics": {
+    "total_questions": 40,
+    "answerable_count": 31,
+    "unanswerable_count": 9,
+    "hit_at_1": 0.2258,
+    "hit_at_3": 0.4839,
+    "hit_at_5": 0.5806,
+    "mrr": 0.3613,
+    "by_type": {
+      "conceptual": {
+        "count": 3,
+        "hit_at_1": 0.6667,
+        "hit_at_5": 1.0,
+        "mrr": 0.75
+      },
+      "how-to-with-code": {
+        "count": 11,
+        "hit_at_1": 0.2727,
+        "hit_at_5": 0.3636,
+        "mrr": 0.303
+      },
+      "keyword-heavy": {
+        "count": 5,
+        "hit_at_1": 0.2,
+        "hit_at_5": 1.0,
+        "mrr": 0.55
+      },
+      "lookup": {
+        "count": 10,
+        "hit_at_1": 0.1,
+        "hit_at_5": 0.5,
+        "mrr": 0.2533
+      },
+      "multi-page": {
+        "count": 2,
+        "hit_at_1": 0.0,
+        "hit_at_5": 0.5,
+        "mrr": 0.1667
+      }
+    },
+    "unanswerable_refusal_rate": 0.4444,
+    "answerable_false_refusal_rate": 0.0
+  },
+  "score_distributions": {
+    "answerable": {
+      "count": 31,
+      "min": 0.6687,
+      "p25": 0.7298,
+      "median": 0.7642,
+      "p75": 0.7983,
+      "max": 0.8766,
+      "mean": 0.7628
+    },
+    "unanswerable": {
+      "count": 9,
+      "min": 0.4014,
+      "p25": 0.5502,
+      "median": 0.6786,
+      "p75": 0.7436,
+      "max": 0.7593,
+      "mean": 0.6268
+    }
+  },
+  "questions": [
+    {
+      "id": "q001",
+      "type": "lookup",
+      "question": "How do I declare optional query parameters?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/query-params.md"
+      ],
+      "top_score": 2.6,
+      "top_vector_score": 0.8444,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/query-param-models.md",
+          "title": "Query Parameter Models",
+          "heading_path": "Query Parameter Models > Optional Query Parameter Models",
+          "score": 2.6,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/dependencies/sub-dependencies.md",
+          "title": "Sub-dependencies",
+          "heading_path": "Sub-dependencies > Use the dependency",
+          "score": 2.1,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/dependencies/sub-dependencies.md",
+          "title": "Sub-dependencies",
+          "heading_path": "Sub-dependencies > Second dependency, \"dependable\" and \"dependant\"",
+          "score": 2.0,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/query-param-models.md",
+          "title": "Query Parameter Models",
+          "heading_path": "Query Parameter Models > Combine Parameter Models",
+          "score": 1.9,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/query-params-str-validations.md",
+          "title": "Query Parameters and String Validations",
+          "heading_path": "Query Parameters and String Validations > Query parameter list / multiple values",
+          "score": 1.8,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q002",
+      "type": "lookup",
+      "question": "How do I add OAuth2 authentication?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/security/index.md",
+        "docs/fastapi/tutorial/security/first-steps.md",
+        "docs/fastapi/tutorial/security/simple-oauth2.md"
+      ],
+      "top_score": 1.1,
+      "top_vector_score": 0.7875,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/security/oauth2-scopes.md",
+          "title": "OAuth2 scopes",
+          "heading_path": "OAuth2 scopes",
+          "score": 1.1,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/security/index.md",
+          "title": "Security",
+          "heading_path": "Security > OpenAPI",
+          "score": 1.0,
+          "is_match": true,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/security/oauth2-scopes.md",
+          "title": "OAuth2 scopes",
+          "heading_path": "OAuth2 scopes > About third party integrations",
+          "score": 0.8,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/security/oauth2-scopes.md",
+          "title": "OAuth2 scopes",
+          "heading_path": "OAuth2 scopes > OAuth2 Security scheme",
+          "score": 0.7,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/security/oauth2-scopes.md",
+          "title": "OAuth2 scopes",
+          "heading_path": "OAuth2 scopes > Global view",
+          "score": 0.7,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 2,
+      "reciprocal_rank": 0.5
+    },
+    {
+      "id": "q003",
+      "type": "lookup",
+      "question": "Where can I change the default 200 ok number when a new item gets saved?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/response-status-code.md"
+      ],
+      "top_score": 2.5,
+      "top_vector_score": 0.681,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/additional-status-codes.md",
+          "title": "Additional Status Codes",
+          "heading_path": "Additional Status Codes > Additional status codes",
+          "score": 2.5,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/body-updates.md",
+          "title": "Body - Updates",
+          "heading_path": "Body - Updates > Partial updates with `PATCH` > Partial updates recap",
+          "score": 2.5,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/body-updates.md",
+          "title": "Body - Updates",
+          "heading_path": "Body - Updates > Partial updates with `PATCH` > Using Pydantic's `exclude_unset` parameter",
+          "score": 2.3,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/body-updates.md",
+          "title": "Body - Updates",
+          "heading_path": "Body - Updates > Partial updates with `PATCH` > Using Pydantic's `update` parameter",
+          "score": 2.3,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/bigger-applications.md",
+          "title": "Bigger Applications - Multiple Files",
+          "heading_path": "Bigger Applications - Multiple Files > Another module with `APIRouter`",
+          "score": 2.2,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q004",
+      "type": "lookup",
+      "question": "How do I restrict a path parameter so users can only pass predefined choices?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/path-params.md"
+      ],
+      "top_score": 2.5,
+      "top_vector_score": 0.7298,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/dependencies/index.md",
+          "title": "Dependencies",
+          "heading_path": "Dependencies > Simple and Powerful",
+          "score": 2.5,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/path-params.md",
+          "title": "Path Parameters",
+          "heading_path": "Path Parameters > Order matters",
+          "score": 2.5,
+          "is_match": true,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/security/simple-oauth2.md",
+          "title": "Simple OAuth2 with Password and Bearer",
+          "heading_path": "Simple OAuth2 with Password and Bearer > Code to get the `username` and `password` > `OAuth2PasswordRequestForm`",
+          "score": 2.1,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/security/simple-oauth2.md",
+          "title": "Simple OAuth2 with Password and Bearer",
+          "heading_path": "Simple OAuth2 with Password and Bearer > Code to get the `username` and `password` > Use the form data",
+          "score": 1.9,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/security/simple-oauth2.md",
+          "title": "Simple OAuth2 with Password and Bearer",
+          "heading_path": "Simple OAuth2 with Password and Bearer > Return the token",
+          "score": 1.9,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 2,
+      "reciprocal_rank": 0.5
+    },
+    {
+      "id": "q005",
+      "type": "lookup",
+      "question": "What exception does FastAPI automatically raise when a request contains invalid data?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/handling-errors.md"
+      ],
+      "top_score": 2.6,
+      "top_vector_score": 0.8287,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/handling-errors.md",
+          "title": "Handling Errors",
+          "heading_path": "Handling Errors > Override the default exception handlers > Override request validation exceptions",
+          "score": 2.6,
+          "is_match": true,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/handling-errors.md",
+          "title": "Handling Errors",
+          "heading_path": "Handling Errors > Override the default exception handlers > Reuse **FastAPI**'s exception handlers",
+          "score": 2.4,
+          "is_match": true,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/dependencies/dependencies-with-yield.md",
+          "title": "Dependencies with yield",
+          "heading_path": "Dependencies with yield > Execution of dependencies with `yield`",
+          "score": 2.2,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/path-operation-advanced-configuration.md",
+          "title": "Path Operation Advanced Configuration",
+          "heading_path": "Path Operation Advanced Configuration > OpenAPI Extra > Custom OpenAPI content type",
+          "score": 2.1,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/dependencies/dependencies-with-yield.md",
+          "title": "Dependencies with yield",
+          "heading_path": "Dependencies with yield > Dependencies with `yield` and `except`",
+          "score": 1.9,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "q006",
+      "type": "lookup",
+      "question": "Is there a built in helper to transform my database models into regular python dicts for json?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/encoder.md"
+      ],
+      "top_score": 1.7,
+      "top_vector_score": 0.7612,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/extra-models.md",
+          "title": "Extra Models",
+          "heading_path": "Extra Models > Multiple models > About `**user_in.model_dump()` > Pydantic's `.model_dump()`",
+          "score": 1.7,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/query-param-models.md",
+          "title": "Query Parameter Models",
+          "heading_path": "Query Parameter Models > Optional Query Parameter Models",
+          "score": 1.6,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/path-params.md",
+          "title": "Path Parameters",
+          "heading_path": "Path Parameters > Predefined values > Working with Python *enumerations* > Return *enumeration members*",
+          "score": 1.6,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/extra-models.md",
+          "title": "Extra Models",
+          "heading_path": "Extra Models > Multiple models > About `**user_in.model_dump()` > Unpacking a `dict`",
+          "score": 1.5,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/encoder.md",
+          "title": "JSON Compatible Encoder",
+          "heading_path": "JSON Compatible Encoder > Using the `jsonable_encoder`",
+          "score": 1.4,
+          "is_match": true,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 5,
+      "reciprocal_rank": 0.2
+    },
+    {
+      "id": "q007",
+      "type": "lookup",
+      "question": "How do I mark a post route as obsolete so it shows crossed out in the swagger ui?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/path-operation-configuration.md"
+      ],
+      "top_score": 1.8,
+      "top_vector_score": 0.6819,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/how-to/custom-docs-ui-assets.md",
+          "title": "Custom Docs UI Static Assets (Self-Hosting)",
+          "heading_path": "Custom Docs UI Static Assets (Self-Hosting) > Self-hosting JavaScript and CSS for docs > Disable the automatic docs for static files",
+          "score": 1.8,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/how-to/custom-docs-ui-assets.md",
+          "title": "Custom Docs UI Static Assets (Self-Hosting)",
+          "heading_path": "Custom Docs UI Static Assets (Self-Hosting) > Custom CDN for JavaScript and CSS > Disable the automatic docs",
+          "score": 1.8,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/how-to/custom-docs-ui-assets.md",
+          "title": "Custom Docs UI Static Assets (Self-Hosting)",
+          "heading_path": "Custom Docs UI Static Assets (Self-Hosting) > Self-hosting JavaScript and CSS for docs > Serve the static files",
+          "score": 1.8,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/how-to/custom-docs-ui-assets.md",
+          "title": "Custom Docs UI Static Assets (Self-Hosting)",
+          "heading_path": "Custom Docs UI Static Assets (Self-Hosting) > Custom CDN for JavaScript and CSS > Create a *path operation* to test it",
+          "score": 1.8,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/how-to/custom-docs-ui-assets.md",
+          "title": "Custom Docs UI Static Assets (Self-Hosting)",
+          "heading_path": "Custom Docs UI Static Assets (Self-Hosting) > Self-hosting JavaScript and CSS for docs > Create a *path operation* to test static files",
+          "score": 1.8,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q008",
+      "type": "lookup",
+      "question": "What command line tool starts up the server in live reload mode during local coding?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/first-steps.md",
+        "docs/fastapi/fastapi-cli.md"
+      ],
+      "top_score": 2.2,
+      "top_vector_score": 0.6954,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/deployment/server-workers.md",
+          "title": "Server Workers - Uvicorn with Workers",
+          "heading_path": "Server Workers - Uvicorn with Workers > Multiple Workers",
+          "score": 2.2,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/index.md",
+          "title": "Tutorial - User Guide",
+          "heading_path": "Tutorial - User Guide > Run the code",
+          "score": 1.9,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/fastapi-cli.md",
+          "title": "FastAPI CLI",
+          "heading_path": "FastAPI CLI",
+          "score": 1.8,
+          "is_match": true,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/settings.md",
+          "title": "Settings and Environment Variables",
+          "heading_path": "Settings and Environment Variables > Reading a `.env` file > Creating the `Settings` only once with `lru_cache` > `lru_cache` Technical Details",
+          "score": 1.4,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/index.md",
+          "title": "FastAPI",
+          "heading_path": "FastAPI > Example > Run it",
+          "score": 1.4,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 3,
+      "reciprocal_rank": 0.3333
+    },
+    {
+      "id": "q009",
+      "type": "how-to-with-code",
+      "question": "My script needs to fire off an email after the request finishes so the user doesn't wait. What do I write in the function?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/background-tasks.md"
+      ],
+      "top_score": 2.2,
+      "top_vector_score": 0.6903,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/dependencies/index.md",
+          "title": "Dependencies",
+          "heading_path": "Dependencies > Simple and Powerful",
+          "score": 2.2,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/security/simple-oauth2.md",
+          "title": "Simple OAuth2 with Password and Bearer",
+          "heading_path": "Simple OAuth2 with Password and Bearer > Code to get the `username` and `password` > `OAuth2PasswordRequestForm`",
+          "score": 2.2,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/security/simple-oauth2.md",
+          "title": "Simple OAuth2 with Password and Bearer",
+          "heading_path": "Simple OAuth2 with Password and Bearer > Return the token",
+          "score": 2.1,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/security/simple-oauth2.md",
+          "title": "Simple OAuth2 with Password and Bearer",
+          "heading_path": "Simple OAuth2 with Password and Bearer > Code to get the `username` and `password` > Use the form data",
+          "score": 2.1,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/security/simple-oauth2.md",
+          "title": "Simple OAuth2 with Password and Bearer",
+          "heading_path": "Simple OAuth2 with Password and Bearer > Update the dependencies",
+          "score": 2.1,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q010",
+      "type": "how-to-with-code",
+      "question": "How do I make a parameter accept numbers that must be greater than zero and less than 100?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/path-params-numeric-validations.md"
+      ],
+      "top_score": 1.4,
+      "top_vector_score": 0.7635,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/query-param-models.md",
+          "title": "Query Parameter Models",
+          "heading_path": "Query Parameter Models > Optional Query Parameter Models",
+          "score": 1.4,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/dependencies/index.md",
+          "title": "Dependencies",
+          "heading_path": "Dependencies > First Steps > Declare the dependency, in the \"dependant\"",
+          "score": 1.4,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/dependencies/classes-as-dependencies.md",
+          "title": "Classes as Dependencies",
+          "heading_path": "Classes as Dependencies > Classes as dependencies",
+          "score": 1.1,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/query-param-models.md",
+          "title": "Query Parameter Models",
+          "heading_path": "Query Parameter Models > Combine Parameter Models",
+          "score": 0.9,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/dependencies/index.md",
+          "title": "Dependencies",
+          "heading_path": "Dependencies > First Steps > Create a dependency, or \"dependable\"",
+          "score": 0.9,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q011",
+      "type": "how-to-with-code",
+      "question": "How can I catch image uploads from a web form in my handler function?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/request-files.md"
+      ],
+      "top_score": 2.0,
+      "top_vector_score": 0.6815,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/stream-data.md",
+          "title": "Stream Data",
+          "heading_path": "Stream Data > A Custom `PNGStreamingResponse`",
+          "score": 2.0,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/settings.md",
+          "title": "Settings and Environment Variables",
+          "heading_path": "Settings and Environment Variables > Reading a `.env` file > Creating the `Settings` only once with `lru_cache` > `lru_cache` Technical Details",
+          "score": 1.8,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/handling-errors.md",
+          "title": "Handling Errors",
+          "heading_path": "Handling Errors > Override the default exception handlers > Reuse **FastAPI**'s exception handlers",
+          "score": 1.3,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/stream-data.md",
+          "title": "Stream Data",
+          "heading_path": "Stream Data > A Custom `PNGStreamingResponse` > Simulate a File",
+          "score": 1.3,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/dependencies/dependencies-with-yield.md",
+          "title": "Dependencies with yield",
+          "heading_path": "Dependencies with yield > Early exit and `scope`",
+          "score": 1.2,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q012",
+      "type": "how-to-with-code",
+      "question": "How do I throw a 404 message when a record is not found in the database?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/handling-errors.md"
+      ],
+      "top_score": 1.2,
+      "top_vector_score": 0.6687,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/background-tasks.md",
+          "title": "Background Tasks",
+          "heading_path": "Background Tasks > Dependency Injection",
+          "score": 1.2,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/additional-responses.md",
+          "title": "Additional Responses in OpenAPI",
+          "heading_path": "Additional Responses in OpenAPI > Additional Response with `model`",
+          "score": 0.9,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/websockets.md",
+          "title": "WebSockets",
+          "heading_path": "WebSockets > Handling disconnections and multiple clients",
+          "score": 0.8,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/additional-responses.md",
+          "title": "Additional Responses in OpenAPI",
+          "heading_path": "Additional Responses in OpenAPI > Combining information",
+          "score": 0.8,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/websockets.md",
+          "title": "WebSockets",
+          "heading_path": "WebSockets > Await for messages and send messages",
+          "score": 0.7,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q013",
+      "type": "how-to-with-code",
+      "question": "I want to share my database session across handlers and close it when done. How is that written?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/dependencies/dependencies-with-yield.md"
+      ],
+      "top_score": 1.6,
+      "top_vector_score": 0.6996,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/advanced-dependencies.md",
+          "title": "Advanced Dependencies",
+          "heading_path": "Advanced Dependencies > Dependencies with `yield`, `HTTPException`, `except` and Background Tasks > Dependencies with `yield` and `StreamingResponse`, Technical Details > Use Cases with Early Exit Code",
+          "score": 1.6,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/advanced-dependencies.md",
+          "title": "Advanced Dependencies",
+          "heading_path": "Advanced Dependencies > Dependencies with `yield`, `HTTPException`, `except` and Background Tasks > Dependencies with `yield` and `StreamingResponse`, Technical Details > Use Cases with Early Exit Code",
+          "score": 1.5,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/handling-errors.md",
+          "title": "Handling Errors",
+          "heading_path": "Handling Errors > Override the default exception handlers > Reuse **FastAPI**'s exception handlers",
+          "score": 1.4,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/handling-errors.md",
+          "title": "Handling Errors",
+          "heading_path": "Handling Errors > Override the default exception handlers > Override request validation exceptions",
+          "score": 1.1,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/advanced-dependencies.md",
+          "title": "Advanced Dependencies",
+          "heading_path": "Advanced Dependencies > Dependencies with `yield`, `HTTPException`, `except` and Background Tasks > Background Tasks and Dependencies with `yield`, Technical Details",
+          "score": 1.0,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q014",
+      "type": "how-to-with-code",
+      "question": "How do I write a custom middleware that measures and prints how many milliseconds each request took?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/middleware.md"
+      ],
+      "top_score": 1.3,
+      "top_vector_score": 0.742,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/middleware.md",
+          "title": "Middleware",
+          "heading_path": "Middleware > Multiple middleware execution order",
+          "score": 1.3,
+          "is_match": true,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/how-to/custom-request-and-route.md",
+          "title": "Custom Request and APIRoute class",
+          "heading_path": "Custom Request and APIRoute class > Handling custom request body encodings > Create a custom `GzipRoute` class",
+          "score": 1.2,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/middleware.md",
+          "title": "Middleware",
+          "heading_path": "Middleware > Create a middleware",
+          "score": 1.2,
+          "is_match": true,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/how-to/custom-request-and-route.md",
+          "title": "Custom Request and APIRoute class",
+          "heading_path": "Custom Request and APIRoute class > Custom `APIRoute` class in a router",
+          "score": 1.1,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/middleware.md",
+          "title": "Advanced Middleware",
+          "heading_path": "Advanced Middleware > Adding ASGI middlewares",
+          "score": 1.1,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "q015",
+      "type": "how-to-with-code",
+      "question": "How do I serve a folder of css and javascript files at the /static address?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/static-files.md"
+      ],
+      "top_score": 1.8,
+      "top_vector_score": 0.8041,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/request-files.md",
+          "title": "Request Files",
+          "heading_path": "Request Files > Multiple File Uploads > Multiple File Uploads with Additional Metadata",
+          "score": 1.8,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/request-files.md",
+          "title": "Request Files",
+          "heading_path": "Request Files > Define `File` Parameters",
+          "score": 1.6,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/request-files.md",
+          "title": "Request Files",
+          "heading_path": "Request Files > File Parameters with `UploadFile`",
+          "score": 1.6,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/request-forms-and-files.md",
+          "title": "Request Forms and Files",
+          "heading_path": "Request Forms and Files > Define `File` and `Form` parameters",
+          "score": 1.4,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/request-files.md",
+          "title": "Request Files",
+          "heading_path": "Request Files > Optional File Upload",
+          "score": 1.3,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q016",
+      "type": "how-to-with-code",
+      "question": "How do I write automated unit tests for my endpoints using pytest?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/testing.md"
+      ],
+      "top_score": 1.4,
+      "top_vector_score": 0.7768,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/async-tests.md",
+          "title": "Async Tests",
+          "heading_path": "Async Tests > In Detail",
+          "score": 1.4,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/async-tests.md",
+          "title": "Async Tests",
+          "heading_path": "Async Tests > HTTPX",
+          "score": 1.3,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/testing.md",
+          "title": "Testing",
+          "heading_path": "Testing > Using `TestClient`",
+          "score": 1.2,
+          "is_match": true,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/async-tests.md",
+          "title": "Async Tests",
+          "heading_path": "Async Tests",
+          "score": 1.0,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/sql-databases.md",
+          "title": "SQL (Relational) Databases",
+          "heading_path": "SQL (Relational) Databases",
+          "score": 1.0,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 3,
+      "reciprocal_rank": 0.3333
+    },
+    {
+      "id": "q017",
+      "type": "multi-page",
+      "question": "Why does the browser block my React frontend when making calls to my API on a different port?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/cors.md"
+      ],
+      "top_score": 1.2,
+      "top_vector_score": 0.7414,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/security/first-steps.md",
+          "title": "Security - First Steps",
+          "heading_path": "Security - First Steps > The `password` flow",
+          "score": 1.2,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/openapi-callbacks.md",
+          "title": "OpenAPI Callbacks",
+          "heading_path": "OpenAPI Callbacks",
+          "score": 1.1,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/cors.md",
+          "title": "CORS (Cross-Origin Resource Sharing)",
+          "heading_path": "CORS (Cross-Origin Resource Sharing) > Steps",
+          "score": 1.0,
+          "is_match": true,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/stream-data.md",
+          "title": "Stream Data",
+          "heading_path": "Stream Data > A Custom `PNGStreamingResponse` > Files and Async",
+          "score": 0.9,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/openapi-callbacks.md",
+          "title": "OpenAPI Callbacks",
+          "heading_path": "OpenAPI Callbacks > Documenting the callback",
+          "score": 0.9,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 3,
+      "reciprocal_rank": 0.3333
+    },
+    {
+      "id": "q018",
+      "type": "conceptual",
+      "question": "What is the difference between normal def endpoints and async def endpoints, and when should I avoid async?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/async.md"
+      ],
+      "top_score": 1.8,
+      "top_vector_score": 0.8133,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/async.md",
+          "title": "Concurrency and async / await",
+          "heading_path": "Concurrency and async / await > In a hurry?",
+          "score": 1.8,
+          "is_match": true,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/dependencies/index.md",
+          "title": "Dependencies",
+          "heading_path": "Dependencies > To `async` or not to `async`",
+          "score": 1.3,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/async.md",
+          "title": "Concurrency and async / await",
+          "heading_path": "Concurrency and async / await > Very Technical Details > Path operation functions",
+          "score": 1.2,
+          "is_match": true,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/websockets.md",
+          "title": "WebSockets",
+          "heading_path": "WebSockets > Handling disconnections and multiple clients",
+          "score": 1.2,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/stream-data.md",
+          "title": "Stream Data",
+          "heading_path": "Stream Data > A Custom `PNGStreamingResponse` > Files and Async",
+          "score": 1.2,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "q019",
+      "type": "multi-page",
+      "question": "How do I split my routes into different files across folders as my project gets bigger?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/bigger-applications.md"
+      ],
+      "top_score": 1.8,
+      "top_vector_score": 0.777,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/request-files.md",
+          "title": "Request Files",
+          "heading_path": "Request Files > Multiple File Uploads > Multiple File Uploads with Additional Metadata",
+          "score": 1.8,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/request-files.md",
+          "title": "Request Files",
+          "heading_path": "Request Files > File Parameters with `UploadFile`",
+          "score": 1.7,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/request-files.md",
+          "title": "Request Files",
+          "heading_path": "Request Files > Define `File` Parameters",
+          "score": 1.6,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/index.md",
+          "title": "Tutorial - User Guide",
+          "heading_path": "Tutorial - User Guide > Install FastAPI",
+          "score": 1.5,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/request-forms-and-files.md",
+          "title": "Request Forms and Files",
+          "heading_path": "Request Forms and Files > Define `File` and `Form` parameters",
+          "score": 1.4,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q020",
+      "type": "conceptual",
+      "question": "How do security scopes work when restricting token permissions across routes?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/advanced/security/oauth2-scopes.md"
+      ],
+      "top_score": 1.6,
+      "top_vector_score": 0.798,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/security/oauth2-scopes.md",
+          "title": "OAuth2 scopes",
+          "heading_path": "OAuth2 scopes > Declare scopes in *path operations* and dependencies",
+          "score": 1.6,
+          "is_match": true,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/security/oauth2-scopes.md",
+          "title": "OAuth2 scopes",
+          "heading_path": "OAuth2 scopes > Global view",
+          "score": 1.6,
+          "is_match": true,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/security/oauth2-scopes.md",
+          "title": "OAuth2 scopes",
+          "heading_path": "OAuth2 scopes > OAuth2 Security scheme",
+          "score": 1.6,
+          "is_match": true,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/security/oauth2-scopes.md",
+          "title": "OAuth2 scopes",
+          "heading_path": "OAuth2 scopes > JWT token with scopes",
+          "score": 1.6,
+          "is_match": true,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/security/oauth2-scopes.md",
+          "title": "OAuth2 scopes",
+          "heading_path": "OAuth2 scopes > Declare scopes in *path operations* and dependencies",
+          "score": 1.6,
+          "is_match": true,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "q021",
+      "type": "keyword-heavy",
+      "question": "How do I configure OAuth2PasswordBearer with a custom tokenUrl in my security scheme?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/security/first-steps.md",
+        "docs/fastapi/tutorial/security/simple-oauth2.md"
+      ],
+      "top_score": 1.3,
+      "top_vector_score": 0.8122,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/security/first-steps.md",
+          "title": "Security - First Steps",
+          "heading_path": "Security - First Steps > **FastAPI**'s `OAuth2PasswordBearer` > Use it",
+          "score": 1.3,
+          "is_match": true,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/security/first-steps.md",
+          "title": "Security - First Steps",
+          "heading_path": "Security - First Steps > **FastAPI**'s `OAuth2PasswordBearer`",
+          "score": 0.9,
+          "is_match": true,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/security/get-current-user.md",
+          "title": "Get Current User",
+          "heading_path": "Get Current User > Code size",
+          "score": 0.8,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/security/oauth2-scopes.md",
+          "title": "OAuth2 scopes",
+          "heading_path": "OAuth2 scopes > Declare scopes in *path operations* and dependencies",
+          "score": 0.7,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/security/oauth2-scopes.md",
+          "title": "OAuth2 scopes",
+          "heading_path": "OAuth2 scopes > Use `SecurityScopes`",
+          "score": 0.7,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "q022",
+      "type": "keyword-heavy",
+      "question": "How do I read request headers using the Header class instead of normal parameters?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/header-params.md"
+      ],
+      "top_score": 2.1,
+      "top_vector_score": 0.8094,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/query-param-models.md",
+          "title": "Query Parameter Models",
+          "heading_path": "Query Parameter Models > Optional Query Parameter Models",
+          "score": 2.1,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/dependencies/index.md",
+          "title": "Dependencies",
+          "heading_path": "Dependencies > First Steps > Declare the dependency, in the \"dependant\"",
+          "score": 2.0,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/middleware.md",
+          "title": "Middleware",
+          "heading_path": "Middleware > Create a middleware",
+          "score": 1.8,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/header-params.md",
+          "title": "Header Parameters",
+          "heading_path": "Header Parameters > Automatic conversion",
+          "score": 1.8,
+          "is_match": true,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/header-params.md",
+          "title": "Header Parameters",
+          "heading_path": "Header Parameters > Declare `Header` parameters",
+          "score": 1.7,
+          "is_match": true,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 4,
+      "reciprocal_rank": 0.25
+    },
+    {
+      "id": "q023",
+      "type": "keyword-heavy",
+      "question": "How do I use HTTPBasic and HTTPBasicCredentials to protect an administrative endpoint?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/advanced/security/http-basic-auth.md"
+      ],
+      "top_score": 1.0,
+      "top_vector_score": 0.7546,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/sql-databases.md",
+          "title": "SQL (Relational) Databases",
+          "heading_path": "SQL (Relational) Databases",
+          "score": 1.0,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/security/http-basic-auth.md",
+          "title": "HTTP Basic Auth",
+          "heading_path": "HTTP Basic Auth > Simple HTTP Basic Auth",
+          "score": 1.0,
+          "is_match": true,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/async.md",
+          "title": "Concurrency and async / await",
+          "heading_path": "Concurrency and async / await > In a hurry?",
+          "score": 0.8,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/benchmarks.md",
+          "title": "Benchmarks",
+          "heading_path": "Benchmarks > Benchmarks and speed",
+          "score": 0.8,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/deployment/docker.md",
+          "title": "FastAPI in Containers - Docker",
+          "heading_path": "FastAPI in Containers - Docker > Previous Steps Before Starting and Containers > Base Docker Image",
+          "score": 0.7,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 2,
+      "reciprocal_rank": 0.5
+    },
+    {
+      "id": "q024",
+      "type": "keyword-heavy",
+      "question": "How do I stream live events to browsers using EventSourceResponse or StreamingResponse?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/advanced/custom-response.md",
+        "docs/fastapi/tutorial/server-sent-events.md"
+      ],
+      "top_score": 1.1,
+      "top_vector_score": 0.7794,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/advanced-dependencies.md",
+          "title": "Advanced Dependencies",
+          "heading_path": "Advanced Dependencies > Dependencies with `yield`, `HTTPException`, `except` and Background Tasks > Dependencies with `yield` and `StreamingResponse`, Technical Details > Use Cases with Early Exit Code",
+          "score": 1.1,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/server-sent-events.md",
+          "title": "Server-Sent Events (SSE)",
+          "heading_path": "Server-Sent Events (SSE) > Resuming with `Last-Event-ID`",
+          "score": 1.0,
+          "is_match": true,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/sql-databases.md",
+          "title": "SQL (Relational) Databases",
+          "heading_path": "SQL (Relational) Databases",
+          "score": 1.0,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/server-sent-events.md",
+          "title": "Server-Sent Events (SSE)",
+          "heading_path": "Server-Sent Events (SSE) > Stream SSE with FastAPI",
+          "score": 1.0,
+          "is_match": true,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/custom-response.md",
+          "title": "Custom Response - HTML, Stream, File, others",
+          "heading_path": "Custom Response - HTML, Stream, File, others > Available responses > `StreamingResponse`",
+          "score": 0.9,
+          "is_match": true,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 2,
+      "reciprocal_rank": 0.5
+    },
+    {
+      "id": "q025",
+      "type": "keyword-heavy",
+      "question": "How do I override app dependencies during unit tests using app.dependency_overrides?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/advanced/testing-dependencies.md"
+      ],
+      "top_score": 2.3,
+      "top_vector_score": 0.8766,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/dependencies/dependencies-with-yield.md",
+          "title": "Dependencies with yield",
+          "heading_path": "Dependencies with yield > Sub-dependencies with `yield`",
+          "score": 2.3,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/testing-dependencies.md",
+          "title": "Testing Dependencies with Overrides",
+          "heading_path": "Testing Dependencies with Overrides > Overriding dependencies during testing > Use the `app.dependency_overrides` attribute",
+          "score": 2.1,
+          "is_match": true,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/dependencies/sub-dependencies.md",
+          "title": "Sub-dependencies",
+          "heading_path": "Sub-dependencies > Using the same dependency multiple times",
+          "score": 1.8,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/testing-dependencies.md",
+          "title": "Testing Dependencies with Overrides",
+          "heading_path": "Testing Dependencies with Overrides > Overriding dependencies during testing > Use the `app.dependency_overrides` attribute",
+          "score": 1.8,
+          "is_match": true,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/async-tests.md",
+          "title": "Async Tests",
+          "heading_path": "Async Tests > In Detail",
+          "score": 1.7,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 2,
+      "reciprocal_rank": 0.5
+    },
+    {
+      "id": "q026",
+      "type": "near-miss",
+      "question": "How do I create and run Django ORM migrations with manage.py in FastAPI?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 1.9,
+      "top_vector_score": 0.7436,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/fastapi-cli.md",
+          "title": "FastAPI CLI",
+          "heading_path": "FastAPI CLI",
+          "score": 1.9,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/index.md",
+          "title": "Tutorial - User Guide",
+          "heading_path": "Tutorial - User Guide > Install FastAPI",
+          "score": 1.6,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/frontend.md",
+          "title": "Frontend",
+          "heading_path": "Frontend > Check Directory",
+          "score": 1.4,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/first-steps.md",
+          "title": "First Steps",
+          "heading_path": "First Steps",
+          "score": 1.4,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/index.md",
+          "title": "FastAPI",
+          "heading_path": "FastAPI > Example > Run it",
+          "score": 1.3,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q027",
+      "type": "near-miss",
+      "question": "How do I add rate limiting to prevent too many requests?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 1.0,
+      "top_vector_score": 0.7188,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/middleware.md",
+          "title": "Middleware",
+          "heading_path": "Middleware > Create a middleware > Before and after the `response`",
+          "score": 1.0,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/templates.md",
+          "title": "Templates",
+          "heading_path": "Templates > Using `Jinja2Templates`",
+          "score": 1.0,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/middleware.md",
+          "title": "Middleware",
+          "heading_path": "Middleware > Create a middleware",
+          "score": 1.0,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/how-to/custom-request-and-route.md",
+          "title": "Custom Request and APIRoute class",
+          "heading_path": "Custom Request and APIRoute class > Handling custom request body encodings > Create a custom `GzipRoute` class",
+          "score": 0.9,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/using-request-directly.md",
+          "title": "Using the Request Directly",
+          "heading_path": "Using the Request Directly > Use the `Request` object directly",
+          "score": 0.8,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q028",
+      "type": "how-to-with-code",
+      "question": "What should I use for heavy background jobs that need multiple servers?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/background-tasks.md"
+      ],
+      "top_score": 1.6,
+      "top_vector_score": 0.7683,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/background-tasks.md",
+          "title": "Background Tasks",
+          "heading_path": "Background Tasks > Caveat",
+          "score": 1.6,
+          "is_match": true,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/sql-databases.md",
+          "title": "SQL (Relational) Databases",
+          "heading_path": "SQL (Relational) Databases",
+          "score": 1.3,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/advanced-dependencies.md",
+          "title": "Advanced Dependencies",
+          "heading_path": "Advanced Dependencies > Dependencies with `yield`, `HTTPException`, `except` and Background Tasks > Background Tasks and Dependencies with `yield`, Technical Details",
+          "score": 1.3,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/deployment/concepts.md",
+          "title": "Deployments Concepts",
+          "heading_path": "Deployments Concepts > Resource Utilization",
+          "score": 1.3,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/deployment/docker.md",
+          "title": "FastAPI in Containers - Docker",
+          "heading_path": "FastAPI in Containers - Docker > Previous Steps Before Starting and Containers > Base Docker Image",
+          "score": 1.2,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "q029",
+      "type": "lookup",
+      "question": "Which GraphQL library does FastAPI recommend using with its framework?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/how-to/graphql.md"
+      ],
+      "top_score": 1.9,
+      "top_vector_score": 0.873,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/fastapi-cli.md",
+          "title": "FastAPI CLI",
+          "heading_path": "FastAPI CLI",
+          "score": 1.9,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/benchmarks.md",
+          "title": "Benchmarks",
+          "heading_path": "Benchmarks > Benchmarks and speed",
+          "score": 1.8,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/async.md",
+          "title": "Concurrency and async / await",
+          "heading_path": "Concurrency and async / await > In a hurry?",
+          "score": 1.6,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/sql-databases.md",
+          "title": "SQL (Relational) Databases",
+          "heading_path": "SQL (Relational) Databases",
+          "score": 1.5,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/custom-response.md",
+          "title": "Custom Response - HTML, Stream, File, others",
+          "heading_path": "Custom Response - HTML, Stream, File, others > Available responses > `RedirectResponse`",
+          "score": 1.4,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q030",
+      "type": "lookup",
+      "question": "How do I paginate large database query results in endpoints?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/sql-databases.md"
+      ],
+      "top_score": 2.1,
+      "top_vector_score": 0.7069,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/dependencies/sub-dependencies.md",
+          "title": "Sub-dependencies",
+          "heading_path": "Sub-dependencies > Use the dependency",
+          "score": 2.1,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/dependencies/sub-dependencies.md",
+          "title": "Sub-dependencies",
+          "heading_path": "Sub-dependencies > Second dependency, \"dependable\" and \"dependant\"",
+          "score": 1.3,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/query-param-models.md",
+          "title": "Query Parameter Models",
+          "heading_path": "Query Parameter Models > Combine Parameter Models",
+          "score": 1.3,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/query-params-str-validations.md",
+          "title": "Query Parameters and String Validations",
+          "heading_path": "Query Parameters and String Validations > Declare more metadata",
+          "score": 1.2,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/query-params-str-validations.md",
+          "title": "Query Parameters and String Validations",
+          "heading_path": "Query Parameters and String Validations > Alternative (old): `Query` as the default value",
+          "score": 1.1,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q031",
+      "type": "near-miss",
+      "question": "How do I cache API responses using Redis in FastAPI?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 1.9,
+      "top_vector_score": 0.7593,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/fastapi-cli.md",
+          "title": "FastAPI CLI",
+          "heading_path": "FastAPI CLI",
+          "score": 1.9,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/custom-response.md",
+          "title": "Custom Response - HTML, Stream, File, others",
+          "heading_path": "Custom Response - HTML, Stream, File, others > Available responses > `RedirectResponse`",
+          "score": 1.8,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/additional-responses.md",
+          "title": "Additional Responses in OpenAPI",
+          "heading_path": "Additional Responses in OpenAPI > Combining information",
+          "score": 1.7,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/additional-responses.md",
+          "title": "Additional Responses in OpenAPI",
+          "heading_path": "Additional Responses in OpenAPI > Additional media types for the main response",
+          "score": 1.7,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/custom-response.md",
+          "title": "Custom Response - HTML, Stream, File, others",
+          "heading_path": "Custom Response - HTML, Stream, File, others",
+          "score": 1.7,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q032",
+      "type": "out-of-scope",
+      "question": "What is the capital city of France?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 0.1,
+      "top_vector_score": 0.4014,
+      "gate_refused": true,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/python-types.md",
+          "title": "Python Types Intro",
+          "heading_path": "Python Types Intro > Motivation > Edit it",
+          "score": 0.1,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/header-params.md",
+          "title": "Header Parameters",
+          "heading_path": "Header Parameters > Automatic conversion",
+          "score": 0.1,
+          "is_match": false,
+          "fulltext_rank": 2
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q033",
+      "type": "out-of-scope",
+      "question": "How do I cook a traditional Margherita pizza with sourdough crust?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 0.1,
+      "top_vector_score": 0.5502,
+      "gate_refused": true,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/async.md",
+          "title": "Concurrency and async / await",
+          "heading_path": "Concurrency and async / await > Asynchronous Code > Concurrent Burgers",
+          "score": 0.1,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/async.md",
+          "title": "Concurrency and async / await",
+          "heading_path": "Concurrency and async / await > Asynchronous Code > Parallel Burgers",
+          "score": 0.1,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/async.md",
+          "title": "Concurrency and async / await",
+          "heading_path": "Concurrency and async / await > Asynchronous Code > Parallel Burgers",
+          "score": 0.1,
+          "is_match": false,
+          "fulltext_rank": 3
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q034",
+      "type": "out-of-scope",
+      "question": "Who won the FIFA World Cup in 2022?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 0.3,
+      "top_vector_score": 0.4699,
+      "gate_refused": true,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/custom-response.md",
+          "title": "Custom Response - HTML, Stream, File, others",
+          "heading_path": "Custom Response - HTML, Stream, File, others > Custom response class",
+          "score": 0.3,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/custom-response.md",
+          "title": "Custom Response - HTML, Stream, File, others",
+          "heading_path": "Custom Response - HTML, Stream, File, others > HTML Response > Return a `Response`",
+          "score": 0.3,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/behind-a-proxy.md",
+          "title": "Behind a Proxy",
+          "heading_path": "Behind a Proxy > Additional servers > Disable automatic server from `root_path`",
+          "score": 0.2,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/behind-a-proxy.md",
+          "title": "Behind a Proxy",
+          "heading_path": "Behind a Proxy > Proxy with a stripped path prefix > Checking the current `root_path`",
+          "score": 0.2,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/additional-status-codes.md",
+          "title": "Additional Status Codes",
+          "heading_path": "Additional Status Codes > Additional status codes",
+          "score": 0.2,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q035",
+      "type": "out-of-scope",
+      "question": "What is the speed of light in kilometers per second?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 0.5,
+      "top_vector_score": 0.5677,
+      "gate_refused": true,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/features.md",
+          "title": "Features",
+          "heading_path": "Features > FastAPI features > Just Modern Python",
+          "score": 0.5,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/settings.md",
+          "title": "Settings and Environment Variables",
+          "heading_path": "Settings and Environment Variables > Settings in a dependency > The main app file",
+          "score": 0.4,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/additional-responses.md",
+          "title": "Additional Responses in OpenAPI",
+          "heading_path": "Additional Responses in OpenAPI > Combine predefined responses and custom ones",
+          "score": 0.4,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/settings.md",
+          "title": "Settings and Environment Variables",
+          "heading_path": "Settings and Environment Variables > Pydantic `Settings` > Create the `Settings` object",
+          "score": 0.4,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/settings.md",
+          "title": "Settings and Environment Variables",
+          "heading_path": "Settings and Environment Variables > Settings in another module",
+          "score": 0.3,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q036",
+      "type": "how-to-with-code",
+      "question": "Why is it better to install package requirements in a separate step before putting all my python files into the container?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/deployment/docker.md"
+      ],
+      "top_score": 2.4,
+      "top_vector_score": 0.7369,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/deployment/docker.md",
+          "title": "FastAPI in Containers - Docker",
+          "heading_path": "FastAPI in Containers - Docker > Build a Docker Image for FastAPI > Dockerfile",
+          "score": 2.4,
+          "is_match": true,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/deployment/docker.md",
+          "title": "FastAPI in Containers - Docker",
+          "heading_path": "FastAPI in Containers - Docker > What is a Container Image",
+          "score": 2.3,
+          "is_match": true,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/bigger-applications.md",
+          "title": "Bigger Applications - Multiple Files",
+          "heading_path": "Bigger Applications - Multiple Files > An example file structure",
+          "score": 2.0,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/request-files.md",
+          "title": "Request Files",
+          "heading_path": "Request Files > Multiple File Uploads > Multiple File Uploads with Additional Metadata",
+          "score": 1.9,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/deployment/docker.md",
+          "title": "FastAPI in Containers - Docker",
+          "heading_path": "FastAPI in Containers - Docker > Build a Docker Image for FastAPI > Dockerfile > Docker Cache",
+          "score": 1.8,
+          "is_match": true,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 1,
+      "reciprocal_rank": 1.0
+    },
+    {
+      "id": "q037",
+      "type": "conceptual",
+      "question": "If I load a large machine learning model into a global variable, do my worker processes share that RAM?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/deployment/concepts.md"
+      ],
+      "top_score": 1.6,
+      "top_vector_score": 0.7983,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/events.md",
+          "title": "Lifespan Events",
+          "heading_path": "Lifespan Events > Use Case",
+          "score": 1.6,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/query-param-models.md",
+          "title": "Query Parameter Models",
+          "heading_path": "Query Parameter Models > Optional Query Parameter Models",
+          "score": 1.5,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/events.md",
+          "title": "Lifespan Events",
+          "heading_path": "Lifespan Events > Lifespan",
+          "score": 1.5,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/deployment/concepts.md",
+          "title": "Deployments Concepts",
+          "heading_path": "Deployments Concepts > Replication - Processes and Memory > Multiple Processes - An Example",
+          "score": 1.5,
+          "is_match": true,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/deployment/concepts.md",
+          "title": "Deployments Concepts",
+          "heading_path": "Deployments Concepts > Replication - Processes and Memory > Server Memory",
+          "score": 1.4,
+          "is_match": true,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": 4,
+      "reciprocal_rank": 0.25
+    },
+    {
+      "id": "q038",
+      "type": "how-to-with-code",
+      "question": "How do I run my app with multiple workers?",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/deployment/server-workers.md"
+      ],
+      "top_score": 1.3,
+      "top_vector_score": 0.7642,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/deployment/docker.md",
+          "title": "FastAPI in Containers - Docker",
+          "heading_path": "FastAPI in Containers - Docker > Replication - Number of Processes > One Load Balancer - Multiple Worker Containers",
+          "score": 1.3,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/deployment/concepts.md",
+          "title": "Deployments Concepts",
+          "heading_path": "Deployments Concepts > Program and Process > What is a Process",
+          "score": 1.2,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/settings.md",
+          "title": "Settings and Environment Variables",
+          "heading_path": "Settings and Environment Variables > Pydantic `Settings` > Run the server",
+          "score": 1.2,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/fastapi-cli.md",
+          "title": "FastAPI CLI",
+          "heading_path": "FastAPI CLI",
+          "score": 1.2,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/stream-json-lines.md",
+          "title": "Stream JSON Lines",
+          "heading_path": "Stream JSON Lines > What is a Stream?",
+          "score": 1.2,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q039",
+      "type": "near-miss",
+      "question": "How do I deploy my app to AWS Lambda?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 1.2,
+      "top_vector_score": 0.7516,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/stream-json-lines.md",
+          "title": "Stream JSON Lines",
+          "heading_path": "Stream JSON Lines > What is a Stream?",
+          "score": 1.2,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/first-steps.md",
+          "title": "First Steps",
+          "heading_path": "First Steps > Recap",
+          "score": 0.8,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/deployment/fastapicloud.md",
+          "title": "FastAPI Cloud",
+          "heading_path": "FastAPI Cloud",
+          "score": 0.8,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/index.md",
+          "title": "FastAPI",
+          "heading_path": "FastAPI > Example upgrade > Deploy your app (optional)",
+          "score": 0.8,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/first-steps.md",
+          "title": "First Steps",
+          "heading_path": "First Steps > Deploy your app (optional)",
+          "score": 0.8,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    },
+    {
+      "id": "q040",
+      "type": "near-miss",
+      "question": "How do I add user registration with email verification?",
+      "answerable": false,
+      "expected_sources": [],
+      "top_score": 2.4,
+      "top_vector_score": 0.6786,
+      "gate_refused": false,
+      "retrieved": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/dependencies/index.md",
+          "title": "Dependencies",
+          "heading_path": "Dependencies > Simple and Powerful",
+          "score": 2.4,
+          "is_match": false,
+          "fulltext_rank": 1
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/security/simple-oauth2.md",
+          "title": "Simple OAuth2 with Password and Bearer",
+          "heading_path": "Simple OAuth2 with Password and Bearer > Code to get the `username` and `password` > `OAuth2PasswordRequestForm`",
+          "score": 2.1,
+          "is_match": false,
+          "fulltext_rank": 2
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/security/simple-oauth2.md",
+          "title": "Simple OAuth2 with Password and Bearer",
+          "heading_path": "Simple OAuth2 with Password and Bearer > Return the token",
+          "score": 2.0,
+          "is_match": false,
+          "fulltext_rank": 3
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/security/simple-oauth2.md",
+          "title": "Simple OAuth2 with Password and Bearer",
+          "heading_path": "Simple OAuth2 with Password and Bearer > Code to get the `username` and `password` > Use the form data",
+          "score": 2.0,
+          "is_match": false,
+          "fulltext_rank": 4
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/security/simple-oauth2.md",
+          "title": "Simple OAuth2 with Password and Bearer",
+          "heading_path": "Simple OAuth2 with Password and Bearer > Update the dependencies",
+          "score": 2.0,
+          "is_match": false,
+          "fulltext_rank": 5
+        }
+      ],
+      "first_match_rank": null,
+      "reciprocal_rank": 0.0
+    }
+  ]
+}
