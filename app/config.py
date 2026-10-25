@@ -11,10 +11,10 @@ class Settings(BaseSettings):
     database_url: str = ""
 
     embedding_model_name: str = "BAAI/bge-small-en-v1.5"
-    embedding_dimension: int = 384
-
-    gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash"
+    llm_base_url: str = "http://localhost:11434/v1"
+    llm_model: str = "llama31-rag"
+    llm_api_key: str = "ollama"
+    llm_timeout_seconds: int = 300
 
     app_host: str = "0.0.0.0"
     app_port: int = 8000
