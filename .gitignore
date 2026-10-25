@@ -22,6 +22,7 @@ htmlcov/
 .cache/
 data/cache/
 data/docs/fastapi/
+data/docs_src/
 models/
 huggingface/
 .huggingface/

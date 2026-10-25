@@ -7,14 +7,16 @@ from pathlib import Path
 
 FASTAPI_REPO_URL = "https://github.com/fastapi/fastapi.git"
 TARGET_DOCS_DIR = Path("data/docs/fastapi")
+TARGET_DOCS_SRC_DIR = Path("data/docs_src")
 
 
 def download_fastapi_docs():
     """
     Shallow-clones fastapi repository into a temporary directory
-    and copies docs/en/docs into data/docs/fastapi.
+    and copies docs/en/docs into data/docs/fastapi and docs_src into data/docs_src.
     """
     TARGET_DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    TARGET_DOCS_SRC_DIR.mkdir(parents=True, exist_ok=True)
 
     with tempfile.TemporaryDirectory() as temp_dir:
         print(f"Shallow cloning {FASTAPI_REPO_URL} into temporary directory...")
@@ -33,10 +35,21 @@ def download_fastapi_docs():
             )
             sys.exit(1)
 
+        source_docs_src = Path(temp_dir) / "docs_src"
+        if not source_docs_src.exists():
+            print(
+                f"Error: Could not locate 'docs_src' in cloned repository: {source_docs_src}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
         print(f"Copying documentation from {source_en_docs} to {TARGET_DOCS_DIR}...")
         shutil.copytree(source_en_docs, TARGET_DOCS_DIR, dirs_exist_ok=True)
 
-    print(f"Successfully downloaded and populated FastAPI docs into {TARGET_DOCS_DIR.resolve()}")
+        print(f"Copying code examples from {source_docs_src} to {TARGET_DOCS_SRC_DIR}...")
+        shutil.copytree(source_docs_src, TARGET_DOCS_SRC_DIR, dirs_exist_ok=True)
+
+    print(f"Successfully downloaded and populated FastAPI docs into {TARGET_DOCS_DIR.resolve()} and {TARGET_DOCS_SRC_DIR.resolve()}")
 
 
 if __name__ == "__main__":

@@ -257,13 +257,29 @@ class MarkdownHeadingChunker:
                 return default_title
             return " > ".join(title for _, title in heading_stack)
 
+        in_fence = False
+        fence_marker = ""
+
         for line in lines:
-            match = heading_regex.match(line.strip())
+            stripped = line.strip()
+            # Track code fence state (``` or ~~~)
+            if stripped.startswith("```") or stripped.startswith("~~~"):
+                marker = stripped[:3]
+                if not in_fence:
+                    in_fence = True
+                    fence_marker = marker
+                elif marker == fence_marker:
+                    in_fence = False
+                    fence_marker = ""
+
+            match = heading_regex.match(stripped) if not in_fence else None
             if match:
                 # Save previous section if it has non-whitespace content
                 section_text = "\n".join(current_lines).strip()
-                if section_text:
-                    sections.append((get_current_heading_path(), section_text))
+                heading_path = get_current_heading_path()
+                # Exclude purely promotional/testimonial sections like "Opinions"
+                if section_text and not heading_path.endswith("Opinions"):
+                    sections.append((heading_path, section_text))
                 current_lines = []
 
                 level = len(match.group(1))
@@ -280,8 +296,9 @@ class MarkdownHeadingChunker:
 
         # Add the final section
         final_text = "\n".join(current_lines).strip()
-        if final_text:
-            sections.append((get_current_heading_path(), final_text))
+        final_heading_path = get_current_heading_path()
+        if final_text and not final_heading_path.endswith("Opinions"):
+            sections.append((final_heading_path, final_text))
 
         # If document had no sections, fallback to whole document
         if not sections and default_title:
