@@ -77,6 +77,48 @@ def test_out_of_range_citations_removed_and_flagged():
     assert any("citation [5] outside 1..2 removed" in w for w in warnings)
 
 
+def test_process_answer_preserves_code_indentation():
+    sources_retrieved = [
+        SourceItem(
+            index=1,
+            source_path="docs/fastapi/tutorial/query-params.md",
+            title="Query Parameters",
+            heading_path="Query Parameters > Optional parameters",
+            score=0.85,
+        ),
+    ]
+    raw_answer = (
+        "To declare optional query parameters, set their default to `None` [1]. For example:\n\n"
+        "```python\n"
+        "@app.get(\"/items/{item_id}\")\n"
+        "async def read_item(item_id: str, q: str | None = None):\n"
+        "    if q:\n"
+        "        return {\"item_id\": item_id, \"q\": q}\n"
+        "    return {\"item_id\": item_id}\n"
+        "```\n\n"
+        "This way, `q` will be optional [9]."
+    )
+    cleaned, refused, cited, warnings = process_answer_and_citations(
+        raw_answer, k=1, sources_retrieved=sources_retrieved
+    )
+
+    expected_code = (
+        "```python\n"
+        "@app.get(\"/items/{item_id}\")\n"
+        "async def read_item(item_id: str, q: str | None = None):\n"
+        "    if q:\n"
+        "        return {\"item_id\": item_id, \"q\": q}\n"
+        "    return {\"item_id\": item_id}\n"
+        "```"
+    )
+    assert expected_code in cleaned
+    assert "    if q:" in cleaned
+    assert "        return" in cleaned
+    assert "[1]" in cleaned
+    assert "[9]" not in cleaned
+    assert any("citation [9] outside 1..1 removed" in w for w in warnings)
+
+
 def test_answer_starting_with_i_dont_know_sets_refused_true(client, monkeypatch):
     good_chunk = SearchResult(
         chunk_id="c1",

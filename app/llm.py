@@ -112,8 +112,6 @@ def process_answer_and_citations(
 
     # Validate and filter [n] citations
     cleaned_answer = re.sub(r"\[(\d+)\]", citation_replacer, answer)
-    # Collapse double spaces created by removed citations
-    cleaned_answer = re.sub(r"  +", " ", cleaned_answer).strip()
 
     # Filter sources_cited to only those present in the answer
     sources_cited = [s for s in sources_retrieved if s.index in found_citation_indices]
