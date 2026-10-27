@@ -1,0 +1,469 @@
+{
+  "run_name": "answers-v1-recheck",
+  "questions_file": "eval\\questions.jsonl",
+  "timestamp": "2026-10-27T14:34:48.943832+00:00",
+  "git_commit": "79447bf552e80c7ae336b8aedf7f1ad949f29ac1",
+  "config": {
+    "retriever": "hybrid-bm25",
+    "use_reranker": false,
+    "k": 5,
+    "min_score": 0.6,
+    "rerank_min_score": null,
+    "llm_model": "llama31-rag",
+    "temperature": 0.0
+  },
+  "model_name": "llama31-rag",
+  "results": [
+    {
+      "id": "q003",
+      "question": "Where can I change the default 200 ok number when a new item gets saved?",
+      "type": "lookup",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/response-status-code.md"
+      ],
+      "reference_answer": "Specify the status_code parameter in the path operation decorator, such as status_code=201.",
+      "retrieval": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/body-updates.md",
+          "heading_path": "Body - Updates > Update replacing with `PUT` > Warning about replacing",
+          "title": "Body - Updates",
+          "vector_score": 0.681,
+          "rrf_score": 0.031778,
+          "rerank_score": null,
+          "content": "That means that if you want to update the item `bar` using `PUT` with a body containing:\n\n```Python\n{\n    \"name\": \"Barz\",\n    \"price\": 3,\n    \"description\": None,\n}\n```\n\nbecause it doesn't include the already stored attribute `\"tax\": 20.2`, the input model would take the default value of `\"tax\": 10.5`.\n\nAnd the data would be saved with that \"new\" `tax` of `10.5`."
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/advanced/response-change-status-code.md",
+          "heading_path": "Response - Change Status Code > Use case",
+          "title": "Response - Change Status Code",
+          "vector_score": 0.6456,
+          "rrf_score": 0.031099,
+          "rerank_score": null,
+          "content": "You probably read before that you can set a default [Response Status Code](../tutorial/response-status-code.md).\n\nBut in some cases you need to return a different status code than the default.\n\nFor example, imagine that you want to return an HTTP status code of \"OK\" `200` by default.\n\nBut if the data didn't exist, you want to create it, and return an HTTP status code of \"CREATED\" `201`.\n\nBut you still want to be able to filter and convert the data you return with a `response_model`.\n\nFor those cases, you can use a `Response` parameter."
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/additional-status-codes.md",
+          "heading_path": "Additional Status Codes > Additional status codes",
+          "title": "Additional Status Codes",
+          "vector_score": 0.6392,
+          "rrf_score": 0.02885,
+          "rerank_score": null,
+          "content": "By default, **FastAPI** will return the responses using a `JSONResponse`, putting the content you return from your *path operation* inside of that `JSONResponse`.\n\nIt will use the default status code or the one you set in your *path operation*.\n\nIf you want to return additional status codes apart from the main one, you can do that by returning a `Response` directly, like a `JSONResponse`, and set the additional status code directly.\n\nFor example, let's say that you want to have a *path operation* that allows updating items, and returns HTTP status codes of 200 \"OK\" when successful.\n\nBut you also want it to accept new items. And when the items didn't exist before, it creates them, and returns an HTTP status code of 201 \"Created\".\n\nTo achieve that, import `JSONResponse`, and return your content there directly, setting the `status_code` that you want:\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import Body, FastAPI, status\nfrom fastapi.responses import JSONResponse\n\napp = FastAPI()\n\nitems = {\"foo\": {\"name\": \"Fighters\", \"size\": 6}, \"bar\": {\"name\": \"Tenders\", \"size\": 3}}\n\n@app.put(\"/items/{item_id}\")\nasync def upsert_item(\n    item_id: str,\n    name: Annotated[str | None, Body()] = None,\n    size: Annotated[int | None, Body()] = None,\n):\n    if item_id in items:\n        item = items[item_id]\n        item[\"name\"] = name\n        item[\"size\"] = size\n        return item\n    else:\n        item = {\"name\": name, \"size\": size}\n        items[item_id] = item\n        return JSONResponse(status_code=status.HTTP_201_CREATED, content=item)\n```\n\n/// warning"
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/response-status-code.md",
+          "heading_path": "Response Status Code > Shortcut to remember the names",
+          "title": "Response Status Code",
+          "vector_score": 0.6556,
+          "rrf_score": 0.028718,
+          "rerank_score": null,
+          "content": "/// tip\n\nTo know more about each status code and which code is for what, check the [MDN documentation about HTTP status codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status).\n\n///\n\nLet's see the previous example again:\n\n\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n\n@app.post(\"/items/\", status_code=201)\nasync def create_item(name: str):\n    return {\"name\": name}\n```\n\n\n`201` is the status code for \"Created\".\n\nBut you don't have to memorize what each of these codes mean.\n\nYou can use the convenience variables from `fastapi.status`.\n\n\n\n```python\nfrom fastapi import FastAPI, status\n\napp = FastAPI()\n\n\n@app.post(\"/items/\", status_code=status.HTTP_201_CREATED)\nasync def create_item(name: str):\n    return {\"name\": name}\n```\n\n\nThey are just a convenience, they hold the same number, but that way you can use the editor's autocomplete to find them:\n\n\n\n/// note | Technical Details\n\nYou could also use `from starlette import status`.\n\n**FastAPI** provides the same `starlette.status` as `fastapi.status` just as a convenience for you, the developer. But it comes directly from Starlette.\n\n///\n\nLater, in the [Advanced User Guide](../advanced/response-change-status-code.md), you will see how to return a different status code than the default you are declaring here."
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/response-status-code.md",
+          "heading_path": "Response Status Code > About HTTP status codes",
+          "title": "Response Status Code",
+          "vector_score": 0.6177,
+          "rrf_score": 0.028034,
+          "rerank_score": null,
+          "content": "/// note\n\nIf you already know what HTTP status codes are, skip to the next section.\n\n///\n\nIn HTTP, you send a numeric status code of 3 digits as part of the response.\n\nThese status codes have an associated name to help recognize them, but the important part is the number.\n\nIn short:\n\n* `100 - 199` are for \"Information\". You rarely use them directly.  Responses with these status codes cannot have a body.\n* **`200 - 299`** are for \"Successful\" responses. These are the ones you would use the most.\n    * `200` is the default status code, which means everything was \"OK\".\n    * Another example would be `201`, \"Created\". It is commonly used after creating a new record in the database.\n    * A special case is `204`, \"No Content\".  This response is used when there is no content to return to the client, and so the response must not have a body.\n* **`300 - 399`** are for \"Redirection\".  Responses with these status codes may or may not have a body, except for `304`, \"Not Modified\", which must not have one.\n* **`400 - 499`** are for \"Client error\" responses. These are the second type you would probably use the most.\n    * An example is `404`, for a \"Not Found\" response.\n    * For generic errors from the client, you can just use `400`.\n* `500 - 599` are for server errors. You almost never use them directly. When something goes wrong at some part in your application code, or server, it will automatically return one of these status codes.\n\n/// tip"
+        }
+      ],
+      "top_vector_score": 0.681,
+      "gate_refused": false,
+      "llm_called": true,
+      "answer": "You can change the default 200 OK number when a new item gets saved by changing the `status_code` in the `JSONResponse` object in the `else` block of the `upsert_item` function.\n\nIn the code snippet from [3], you can see that the `status_code` is set to `status.HTTP_201_CREATED` when a new item is created. This is the line that you would need to change to set a different default status code.\n\n```python\nreturn JSONResponse(status_code=status.HTTP_201_CREATED, content=item)\n```\n\nTo change the default status code, you would replace `status.HTTP_201_CREATED` with the desired status code. For example, to change it to 201, you would use `status.HTTP_201`.",
+      "refused": false,
+      "cited_source_paths": [
+        "docs/fastapi/advanced/additional-status-codes.md"
+      ],
+      "cited_chunks": [
+        {
+          "index": 3,
+          "source_path": "docs/fastapi/advanced/additional-status-codes.md",
+          "heading_path": "Additional Status Codes > Additional status codes",
+          "title": "Additional Status Codes",
+          "content": "By default, **FastAPI** will return the responses using a `JSONResponse`, putting the content you return from your *path operation* inside of that `JSONResponse`.\n\nIt will use the default status code or the one you set in your *path operation*.\n\nIf you want to return additional status codes apart from the main one, you can do that by returning a `Response` directly, like a `JSONResponse`, and set the additional status code directly.\n\nFor example, let's say that you want to have a *path operation* that allows updating items, and returns HTTP status codes of 200 \"OK\" when successful.\n\nBut you also want it to accept new items. And when the items didn't exist before, it creates them, and returns an HTTP status code of 201 \"Created\".\n\nTo achieve that, import `JSONResponse`, and return your content there directly, setting the `status_code` that you want:\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import Body, FastAPI, status\nfrom fastapi.responses import JSONResponse\n\napp = FastAPI()\n\nitems = {\"foo\": {\"name\": \"Fighters\", \"size\": 6}, \"bar\": {\"name\": \"Tenders\", \"size\": 3}}\n\n@app.put(\"/items/{item_id}\")\nasync def upsert_item(\n    item_id: str,\n    name: Annotated[str | None, Body()] = None,\n    size: Annotated[int | None, Body()] = None,\n):\n    if item_id in items:\n        item = items[item_id]\n        item[\"name\"] = name\n        item[\"size\"] = size\n        return item\n    else:\n        item = {\"name\": name, \"size\": size}\n        items[item_id] = item\n        return JSONResponse(status_code=status.HTTP_201_CREATED, content=item)\n```\n\n/// warning"
+        }
+      ],
+      "warnings": [],
+      "latency_ms": {
+        "retrieval": 112.01,
+        "llm": 25396.33,
+        "total": 27805.98,
+        "rerank": null
+      },
+      "git_commit": "79447bf552e80c7ae336b8aedf7f1ad949f29ac1",
+      "config": {
+        "retriever": "hybrid-bm25",
+        "use_reranker": false,
+        "k": 5,
+        "min_score": 0.6,
+        "rerank_min_score": null,
+        "llm_model": "llama31-rag",
+        "temperature": 0.0
+      },
+      "model_name": "llama31-rag"
+    },
+    {
+      "id": "q007",
+      "question": "How do I mark a post route as obsolete so it shows crossed out in the swagger ui?",
+      "type": "lookup",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/path-operation-configuration.md"
+      ],
+      "reference_answer": "Pass deprecated=True inside the path operation decorator to mark the route as deprecated in the interactive documentation.",
+      "retrieval": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/how-to/configure-swagger-ui.md",
+          "heading_path": "Configure Swagger UI > Disable Syntax Highlighting",
+          "title": "Configure Swagger UI",
+          "vector_score": 0.68,
+          "rrf_score": 0.032522,
+          "rerank_score": null,
+          "content": "For example, you could disable syntax highlighting in Swagger UI.\n\nWithout changing the settings, syntax highlighting is enabled by default:\n\n\n\nBut you can disable it by setting `syntaxHighlight` to `False`:\n\n\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI(swagger_ui_parameters={\"syntaxHighlight\": False})\n\n\n@app.get(\"/users/{username}\")\nasync def read_user(username: str):\n    return {\"message\": f\"Hello {username}\"}\n```\n\n\n...and then Swagger UI won't show the syntax highlighting anymore:"
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/index.md",
+          "heading_path": "FastAPI > Example upgrade > Interactive API docs upgrade",
+          "title": "FastAPI",
+          "vector_score": 0.6714,
+          "rrf_score": 0.031281,
+          "rerank_score": null,
+          "content": "Now go to [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).\n\n* The interactive API documentation will be automatically updated, including the new body:\n\n![Swagger UI](https://fastapi.tiangolo.com/img/index/index-03-swagger-02.png)\n\n* Click on the button \"Try it out\", it allows you to fill the parameters and directly interact with the API:\n\n![Swagger UI interaction](https://fastapi.tiangolo.com/img/index/index-04-swagger-03.png)\n\n* Then click on the \"Execute\" button, the user interface will communicate with your API, send the parameters, get the results and show them on the screen:\n\n![Swagger UI interaction](https://fastapi.tiangolo.com/img/index/index-05-swagger-04.png)"
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/how-to/custom-docs-ui-assets.md",
+          "heading_path": "Custom Docs UI Static Assets (Self-Hosting) > Custom CDN for JavaScript and CSS > Create a *path operation* to test it",
+          "title": "Custom Docs UI Static Assets (Self-Hosting)",
+          "vector_score": 0.6721,
+          "rrf_score": 0.03101,
+          "rerank_score": null,
+          "content": "Now, to be able to test that everything works, create a *path operation*:\n\n```python\nfrom fastapi import FastAPI\nfrom fastapi.openapi.docs import (\n    get_redoc_html,\n    get_swagger_ui_html,\n    get_swagger_ui_oauth2_redirect_html,\n)\n\napp = FastAPI(docs_url=None, redoc_url=None)\n\n@app.get(\"/docs\", include_in_schema=False)\nasync def custom_swagger_ui_html():\n    return get_swagger_ui_html(\n        openapi_url=app.openapi_url,\n        title=app.title + \" - Swagger UI\",\n        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,\n        swagger_js_url=\"https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js\",\n        swagger_css_url=\"https://unpkg.com/swagger-ui-dist@5/swagger-ui.css\",\n    )\n\n@app.get(app.swagger_ui_oauth2_redirect_url, include_in_schema=False)\nasync def swagger_ui_redirect():\n    return get_swagger_ui_oauth2_redirect_html()"
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/how-to/custom-docs-ui-assets.md",
+          "heading_path": "Custom Docs UI Static Assets (Self-Hosting) > Self-hosting JavaScript and CSS for docs > Create a *path operation* to test static files",
+          "title": "Custom Docs UI Static Assets (Self-Hosting)",
+          "vector_score": 0.6694,
+          "rrf_score": 0.029631,
+          "rerank_score": null,
+          "content": "Now, to be able to test that everything works, create a *path operation*:\n\n```python\nfrom fastapi import FastAPI\nfrom fastapi.openapi.docs import (\n    get_redoc_html,\n    get_swagger_ui_html,\n    get_swagger_ui_oauth2_redirect_html,\n)\nfrom fastapi.staticfiles import StaticFiles\n\napp = FastAPI(docs_url=None, redoc_url=None)\n\napp.mount(\"/static\", StaticFiles(directory=\"static\"), name=\"static\")\n\n@app.get(\"/docs\", include_in_schema=False)\nasync def custom_swagger_ui_html():\n    return get_swagger_ui_html(\n        openapi_url=app.openapi_url,\n        title=app.title + \" - Swagger UI\",\n        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,\n        swagger_js_url=\"/static/swagger-ui-bundle.js\",\n        swagger_css_url=\"/static/swagger-ui.css\",\n    )\n\n@app.get(app.swagger_ui_oauth2_redirect_url, include_in_schema=False)\nasync def swagger_ui_redirect():\n    return get_swagger_ui_oauth2_redirect_html()"
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/how-to/configure-swagger-ui.md",
+          "heading_path": "Configure Swagger UI > Change Default Swagger UI Parameters",
+          "title": "Configure Swagger UI",
+          "vector_score": 0.6789,
+          "rrf_score": 0.029387,
+          "rerank_score": null,
+          "content": "FastAPI includes some default configuration parameters appropriate for most of the use cases.\n\nIt includes these default configurations:\n\n\nYou can override any of them by setting a different value in the argument `swagger_ui_parameters`.\n\nFor example, to disable `deepLinking` you could pass these settings to `swagger_ui_parameters`:\n\n\n\n```python\nfrom fastapi import FastAPI\n\napp = FastAPI(swagger_ui_parameters={\"deepLinking\": False})\n\n\n@app.get(\"/users/{username}\")\nasync def read_user(username: str):\n    return {\"message\": f\"Hello {username}\"}\n```"
+        }
+      ],
+      "top_vector_score": 0.6819,
+      "gate_refused": false,
+      "llm_called": true,
+      "answer": "I don't know based on the documentation.",
+      "refused": true,
+      "cited_source_paths": [],
+      "cited_chunks": [],
+      "warnings": [],
+      "latency_ms": {
+        "retrieval": 102.75,
+        "llm": 5824.81,
+        "total": 8238.88,
+        "rerank": null
+      },
+      "git_commit": "79447bf552e80c7ae336b8aedf7f1ad949f29ac1",
+      "config": {
+        "retriever": "hybrid-bm25",
+        "use_reranker": false,
+        "k": 5,
+        "min_score": 0.6,
+        "rerank_min_score": null,
+        "llm_model": "llama31-rag",
+        "temperature": 0.0
+      },
+      "model_name": "llama31-rag"
+    },
+    {
+      "id": "q011",
+      "question": "How can I catch image uploads from a web form in my handler function?",
+      "type": "how-to-with-code",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/request-files.md"
+      ],
+      "reference_answer": "Define a parameter with type UploadFile and annotate it with File() to receive uploaded files.",
+      "retrieval": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/tutorial/handling-errors.md",
+          "heading_path": "Handling Errors > Override the default exception handlers > Use the `RequestValidationError` body > FastAPI's `HTTPException` vs Starlette's `HTTPException`",
+          "title": "Handling Errors",
+          "vector_score": 0.6686,
+          "rrf_score": 0.031498,
+          "rerank_score": null,
+          "content": "**FastAPI** has its own `HTTPException`.\n\nAnd **FastAPI**'s `HTTPException` error class inherits from Starlette's `HTTPException` error class.\n\nThe only difference is that **FastAPI**'s `HTTPException` accepts any JSON-able data for the `detail` field, while Starlette's `HTTPException` only accepts strings for it.\n\nSo, you can keep raising **FastAPI**'s `HTTPException` as normally in your code.\n\nBut when you register an exception handler, you should register it for Starlette's `HTTPException`.\n\nThis way, if any part of Starlette's internal code, or a Starlette extension or plug-in, raises a Starlette `HTTPException`, your handler will be able to catch and handle it.\n\nIn this example, to be able to have both `HTTPException`s in the same code, Starlette's exceptions is renamed to `StarletteHTTPException`:\n\n```Python\nfrom starlette.exceptions import HTTPException as StarletteHTTPException\n```"
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/request-files.md",
+          "heading_path": "Request Files > Define `File` Parameters",
+          "title": "Request Files",
+          "vector_score": 0.6564,
+          "rrf_score": 0.029958,
+          "rerank_score": null,
+          "content": "Create file parameters the same way you would for `Body` or `Form`:\n\n\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import FastAPI, File, UploadFile\n\napp = FastAPI()\n\n\n@app.post(\"/files/\")\nasync def create_file(file: Annotated[bytes, File()]):\n    return {\"file_size\": len(file)}\n\n\n@app.post(\"/uploadfile/\")\nasync def create_upload_file(file: UploadFile):\n    return {\"filename\": file.filename}\n```\n\n\n/// note\n\n`File` is a class that inherits directly from `Form`.\n\nBut remember that when you import `Query`, `Path`, `File` and others from `fastapi`, those are actually functions that return special classes.\n\n///\n\n/// tip\n\nTo declare File bodies, you need to use `File`, because otherwise the parameters would be interpreted as query parameters or body (JSON) parameters.\n\n///\n\nThe files will be uploaded as \"form data\".\n\nIf you declare the type of your *path operation function* parameter as `bytes`, **FastAPI** will read the file for you and you will receive the contents as `bytes`.\n\nKeep in mind that this means that the whole contents will be stored in memory. This will work well for small files.\n\nBut there are several cases in which you might benefit from using `UploadFile`."
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/tutorial/request-forms-and-files.md",
+          "heading_path": "Request Forms and Files > Define `File` and `Form` parameters",
+          "title": "Request Forms and Files",
+          "vector_score": 0.6644,
+          "rrf_score": 0.029644,
+          "rerank_score": null,
+          "content": "Create file and form parameters the same way you would for `Body` or `Query`:\n\n\n\n```python\nfrom typing import Annotated\n\nfrom fastapi import FastAPI, File, Form, UploadFile\n\napp = FastAPI()\n\n\n@app.post(\"/files/\")\nasync def create_file(\n    file: Annotated[bytes, File()],\n    fileb: Annotated[UploadFile, File()],\n    token: Annotated[str, Form()],\n):\n    return {\n        \"file_size\": len(file),\n        \"token\": token,\n        \"fileb_content_type\": fileb.content_type,\n    }\n```\n\n\nThe files and form fields will be uploaded as form data and you will receive the files and form fields.\n\nAnd you can declare some of the files as `bytes` and some as `UploadFile`.\n\n/// warning\n\nYou can declare multiple `File` and `Form` parameters in a *path operation*, but you can't also declare `Body` fields that you expect to receive as JSON, as the request will have the body encoded using `multipart/form-data` instead of `application/json`.\n\nThis is not a limitation of **FastAPI**, it's part of the HTTP protocol.\n\n///\n\nUse `File` and `Form` together when you need to receive data and files in the same request."
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/handling-errors.md",
+          "heading_path": "Handling Errors > Override the default exception handlers > Override request validation exceptions",
+          "title": "Handling Errors",
+          "vector_score": 0.6722,
+          "rrf_score": 0.028034,
+          "rerank_score": null,
+          "content": "**FastAPI** has some default exception handlers.\n\nThese handlers are in charge of returning the default JSON responses when you `raise` an `HTTPException` and when the request has invalid data.\n\nYou can override these exception handlers with your own.\n\nWhen a request contains invalid data, **FastAPI** internally raises a `RequestValidationError`.\n\nAnd it also includes a default exception handler for it.\n\nTo override it, import the `RequestValidationError` and use it with `@app.exception_handler(RequestValidationError)` to decorate the exception handler.\n\nThe exception handler will receive a `Request` and the exception.\n\n```python\nfrom fastapi import FastAPI, HTTPException\nfrom fastapi.exceptions import RequestValidationError\nfrom fastapi.responses import PlainTextResponse\nfrom starlette.exceptions import HTTPException as StarletteHTTPException\n\napp = FastAPI()\n\n@app.exception_handler(StarletteHTTPException)\nasync def http_exception_handler(request, exc):\n    return PlainTextResponse(str(exc.detail), status_code=exc.status_code)\n\n@app.exception_handler(RequestValidationError)\nasync def validation_exception_handler(request, exc: RequestValidationError):\n    message = \"Validation errors:\"\n    for error in exc.errors():\n        message += f\"\\nField: {error['loc']}, Error: {error['msg']}\"\n    return PlainTextResponse(message, status_code=400)\n\n@app.get(\"/items/{item_id}\")\nasync def read_item(item_id: int):\n    if item_id == 3:\n        raise HTTPException(status_code=418, detail=\"Nope! I don't like 3.\")\n    return {\"item_id\": item_id}\n```"
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/tutorial/request-forms-and-files.md",
+          "heading_path": "Request Forms and Files",
+          "title": "Request Forms and Files",
+          "vector_score": 0.6371,
+          "rrf_score": 0.02724,
+          "rerank_score": null,
+          "content": "You can define files and form fields at the same time using `File` and `Form`.\n\n/// note\n\nTo receive uploaded files and/or form data, first install [`python-multipart`](https://github.com/Kludex/python-multipart).\n\nAdd it to your project:\n\n```console\n$ uv add python-multipart\n```\n\n///"
+        }
+      ],
+      "top_vector_score": 0.6815,
+      "gate_refused": false,
+      "llm_called": true,
+      "answer": "I don't know based on the documentation.",
+      "refused": true,
+      "cited_source_paths": [],
+      "cited_chunks": [],
+      "warnings": [],
+      "latency_ms": {
+        "retrieval": 144.61,
+        "llm": 6049.43,
+        "total": 8481.23,
+        "rerank": null
+      },
+      "git_commit": "79447bf552e80c7ae336b8aedf7f1ad949f29ac1",
+      "config": {
+        "retriever": "hybrid-bm25",
+        "use_reranker": false,
+        "k": 5,
+        "min_score": 0.6,
+        "rerank_min_score": null,
+        "llm_model": "llama31-rag",
+        "temperature": 0.0
+      },
+      "model_name": "llama31-rag"
+    },
+    {
+      "id": "q013",
+      "question": "I want to share my database session across handlers and close it when done. How is that written?",
+      "type": "how-to-with-code",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/dependencies/dependencies-with-yield.md"
+      ],
+      "reference_answer": "Create a dependency function using yield instead of return, placing cleanup code like closing database sessions after the yield.",
+      "retrieval": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/advanced/advanced-dependencies.md",
+          "heading_path": "Advanced Dependencies > Dependencies with `yield`, `HTTPException`, `except` and Background Tasks > Dependencies with `yield` and `StreamingResponse`, Technical Details > Use Cases with Early Exit Code",
+          "title": "Advanced Dependencies",
+          "vector_score": 0.6996,
+          "rrf_score": 0.032787,
+          "rerank_score": null,
+          "content": "def generate_stream(query: str):\n    for ch in query:\n        yield ch\n        time.sleep(0.1)\n\n@app.get(\"/generate\", dependencies=[Depends(get_user)])\ndef generate(query: str):\n    return StreamingResponse(content=generate_stream(query))\n```\n\nThe exit code, the automatic closing of the `Session` in:\n\n```python\ndef get_session():\n    with Session(engine) as session:\n        yield session\n```\n\n...would be run after the response finishes sending the slow data:\n\n```python\ndef generate_stream(query: str):\n    for ch in query:\n        yield ch\n        time.sleep(0.1)\n\n@app.get(\"/generate\", dependencies=[Depends(get_user)])\ndef generate(query: str):\n    return StreamingResponse(content=generate_stream(query))\n```\n\nBut as `generate_stream()` doesn't use the database session, it is not really necessary to keep the session open while sending the response.\n\nIf you have this specific use case using SQLModel (or SQLAlchemy), you could explicitly close the session after you don't need it anymore:\n\n```python\ndef get_user(user_id: int, session: Annotated[Session, Depends(get_session)]):\n    user = session.get(User, user_id)\n    if not user:\n        raise HTTPException(status_code=403, detail=\"Not authorized\")\n    session.close()\n```\n\nThat way the session would release the database connection, so other requests could use it."
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/tutorial/dependencies/dependencies-with-yield.md",
+          "heading_path": "Dependencies with yield > A database dependency with `yield`",
+          "title": "Dependencies with yield",
+          "vector_score": 0.677,
+          "rrf_score": 0.032002,
+          "rerank_score": null,
+          "content": "For example, you could use this to create a database session and close it after finishing.\n\nOnly the code prior to and including the `yield` statement is executed before creating a response:\n\n\n\n```python\nasync def get_db():\n    db = DBSession()\n    try:\n        yield db\n    finally:\n        db.close()\n```\n\n\nThe yielded value is what is injected into *path operations* and other dependencies:\n\n\n\n```python\nasync def get_db():\n    db = DBSession()\n    try:\n        yield db\n    finally:\n        db.close()\n```\n\n\nThe code following the `yield` statement is executed after the response:\n\n\n\n```python\nasync def get_db():\n    db = DBSession()\n    try:\n        yield db\n    finally:\n        db.close()\n```\n\n\n/// tip\n\nYou can use `async` or regular functions.\n\n**FastAPI** will do the right thing with each, the same as with normal dependencies.\n\n///"
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/advanced/advanced-dependencies.md",
+          "heading_path": "Advanced Dependencies > Dependencies with `yield`, `HTTPException`, `except` and Background Tasks > Dependencies with `yield` and `StreamingResponse`, Technical Details > Use Cases with Early Exit Code",
+          "title": "Advanced Dependencies",
+          "vector_score": 0.6847,
+          "rrf_score": 0.031754,
+          "rerank_score": null,
+          "content": "That way the session would release the database connection, so other requests could use it.\n\nIf you have a different use case that needs to exit early from a dependency with `yield`, please create a [GitHub Discussion Question](https://github.com/fastapi/fastapi/discussions/new?category=questions) with your specific use case and why you would benefit from having early closing for dependencies with `yield`.\n\nIf there are compelling use cases for early closing in dependencies with `yield`, I would consider adding a new way to opt in to early closing."
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/tutorial/sql-databases.md",
+          "heading_path": "SQL (Relational) Databases > Create the App with a Single Model > Create a Session Dependency",
+          "title": "SQL (Relational) Databases",
+          "vector_score": 0.6726,
+          "rrf_score": 0.03055,
+          "rerank_score": null,
+          "content": "We then add a function that uses `SQLModel.metadata.create_all(engine)` to **create the tables** for all the *table models*.\n\n\n\n```python\ndef create_db_and_tables():\n    SQLModel.metadata.create_all(engine)\n```\n\nA **`Session`** is what stores the **objects in memory** and keeps track of any changes needed in the data, then it **uses the `engine`** to communicate with the database.\n\nWe will create a FastAPI **dependency** with `yield` that will provide a new `Session` for each request. This is what ensures that we use a single session per request. 🤓\n\nThen we create an `Annotated` dependency `SessionDep` to simplify the rest of the code that will use this dependency.\n\n\n\n```python\ndef get_session():\n    with Session(engine) as session:\n        yield session\n\n\nSessionDep = Annotated[Session, Depends(get_session)]\n```"
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/advanced/advanced-dependencies.md",
+          "heading_path": "Advanced Dependencies > Dependencies with `yield`, `HTTPException`, `except` and Background Tasks > Background Tasks and Dependencies with `yield`, Technical Details",
+          "title": "Advanced Dependencies",
+          "vector_score": 0.6276,
+          "rrf_score": 0.029958,
+          "rerank_score": null,
+          "content": "Before FastAPI 0.106.0, raising exceptions after `yield` was not possible, the exit code in dependencies with `yield` was executed *after* the response was sent, so [Exception Handlers](../tutorial/handling-errors.md#install-custom-exception-handlers) would have already run.\n\nThis was designed this way mainly to allow using the same objects \"yielded\" by dependencies inside of background tasks, because the exit code would be executed after the background tasks were finished.\n\nThis was changed in FastAPI 0.106.0 with the intention to not hold resources while waiting for the response to travel through the network.\n\n/// tip\n\nAdditionally, a background task is normally an independent set of logic that should be handled separately, with its own resources (e.g. its own database connection).\n\nSo, this way you will probably have cleaner code.\n\n///\n\nIf you used to rely on this behavior, now you should create the resources for background tasks inside the background task itself, and use internally only data that doesn't depend on the resources of dependencies with `yield`.\n\nFor example, instead of using the same database session, you would create a new database session inside of the background task, and you would obtain the objects from the database using this new session. And then instead of passing the object from the database as a parameter to the background task function, you would pass the ID of that object and then obtain the object again inside the background task function."
+        }
+      ],
+      "top_vector_score": 0.6996,
+      "gate_refused": false,
+      "llm_called": true,
+      "answer": "You can use the `get_session` function as a dependency with `yield` to share the database session across handlers and close it when done. Here's an example:\n\n```python\ndef get_session():\n    with Session(engine) as session:\n        yield session\n```\n\nThen, in your path operation, you can use the `Annotated` dependency `SessionDep` to inject the session:\n\n```python\nSessionDep = Annotated[Session, Depends(get_session)]\n```\n\nThis way, the session will be created and closed automatically for each request.",
+      "refused": false,
+      "cited_source_paths": [],
+      "cited_chunks": [],
+      "warnings": [
+        "no citations in answer",
+        "code block not found in cited sources"
+      ],
+      "latency_ms": {
+        "retrieval": 104.54,
+        "llm": 20160.94,
+        "total": 22559.09,
+        "rerank": null
+      },
+      "git_commit": "79447bf552e80c7ae336b8aedf7f1ad949f29ac1",
+      "config": {
+        "retriever": "hybrid-bm25",
+        "use_reranker": false,
+        "k": 5,
+        "min_score": 0.6,
+        "rerank_min_score": null,
+        "llm_model": "llama31-rag",
+        "temperature": 0.0
+      },
+      "model_name": "llama31-rag"
+    },
+    {
+      "id": "q015",
+      "question": "How do I serve a folder of css and javascript files at the /static address?",
+      "type": "how-to-with-code",
+      "answerable": true,
+      "expected_sources": [
+        "docs/fastapi/tutorial/static-files.md"
+      ],
+      "reference_answer": "Mount a StaticFiles instance to a specific path using app.mount('/static', StaticFiles(directory='static'), name='static').",
+      "retrieval": [
+        {
+          "rank": 1,
+          "source_path": "docs/fastapi/how-to/custom-docs-ui-assets.md",
+          "heading_path": "Custom Docs UI Static Assets (Self-Hosting) > Self-hosting JavaScript and CSS for docs > Test the static files",
+          "title": "Custom Docs UI Static Assets (Self-Hosting)",
+          "vector_score": 0.8041,
+          "rrf_score": 0.032522,
+          "rerank_score": null,
+          "content": "Start your application and go to [http://127.0.0.1:8000/static/redoc.standalone.js](http://127.0.0.1:8000/static/redoc.standalone.js).\n\nYou should see a very long JavaScript file for **ReDoc**.\n\nIt could start with something like:\n\n```JavaScript\n/*! For license information please see redoc.standalone.js.LICENSE.txt */\n!function(e,t){\"object\"==typeof exports&&\"object\"==typeof module?module.exports=t(require(\"null\")):\n...\n```\n\nThat confirms that you are being able to serve static files from your app, and that you placed the static files for the docs in the correct place.\n\nNow we can configure the app to use those static files for the docs."
+        },
+        {
+          "rank": 2,
+          "source_path": "docs/fastapi/how-to/custom-docs-ui-assets.md",
+          "heading_path": "Custom Docs UI Static Assets (Self-Hosting) > Self-hosting JavaScript and CSS for docs",
+          "title": "Custom Docs UI Static Assets (Self-Hosting)",
+          "vector_score": 0.7668,
+          "rrf_score": 0.031258,
+          "rerank_score": null,
+          "content": "Now, you should be able to go to your docs at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs), and reload the page, it will load those assets from the new CDN.\n\nSelf-hosting the JavaScript and CSS could be useful if, for example, you need your app to keep working even while offline, without open Internet access, or in a local network.\n\nHere you'll see how to serve those files yourself, in the same FastAPI app, and configure the docs to use them."
+        },
+        {
+          "rank": 3,
+          "source_path": "docs/fastapi/how-to/custom-docs-ui-assets.md",
+          "heading_path": "Custom Docs UI Static Assets (Self-Hosting) > Self-hosting JavaScript and CSS for docs > Project file structure",
+          "title": "Custom Docs UI Static Assets (Self-Hosting)",
+          "vector_score": 0.7716,
+          "rrf_score": 0.031054,
+          "rerank_score": null,
+          "content": "Let's say your project file structure looks like this:\n\n```\n.\n├── app\n│   ├── __init__.py\n│   ├── main.py\n```\n\nNow create a directory to store those static files.\n\nYour new file structure could look like this:\n\n```\n.\n├── app\n│   ├── __init__.py\n│   ├── main.py\n└── static/\n```"
+        },
+        {
+          "rank": 4,
+          "source_path": "docs/fastapi/advanced/templates.md",
+          "heading_path": "Templates > Templates and static files",
+          "title": "Templates",
+          "vector_score": 0.7603,
+          "rrf_score": 0.03101,
+          "rerank_score": null,
+          "content": "You can also use `url_for()` inside of the template, and use it, for example, with the `StaticFiles` you mounted with the `name=\"static\"`.\n\n```jinja hl_lines=\"4\"\n{!../../docs_src/templates/templates/item.html!}\n```\n\nIn this example, it would link to a CSS file at `static/styles.css` with:\n\n```CSS hl_lines=\"4\"\n{!../../docs_src/templates/static/styles.css!}\n```\n\nAnd because you are using `StaticFiles`, that CSS file would be served automatically by your **FastAPI** application at the URL `/static/styles.css`.\n\nFor more details, including how to test templates, check [Starlette's docs on templates](https://starlette.dev/templates/)."
+        },
+        {
+          "rank": 5,
+          "source_path": "docs/fastapi/how-to/custom-docs-ui-assets.md",
+          "heading_path": "Custom Docs UI Static Assets (Self-Hosting) > Self-hosting JavaScript and CSS for docs > Serve the static files",
+          "title": "Custom Docs UI Static Assets (Self-Hosting)",
+          "vector_score": 0.7481,
+          "rrf_score": 0.030077,
+          "rerank_score": null,
+          "content": "@app.get(\"/redoc\", include_in_schema=False)\nasync def redoc_html():\n    return get_redoc_html(\n        openapi_url=app.openapi_url,\n        title=app.title + \" - ReDoc\",\n        redoc_js_url=\"/static/redoc.standalone.js\",\n    )\n\n@app.get(\"/users/{username}\")\nasync def read_user(username: str):\n    return {\"message\": f\"Hello {username}\"}\n```"
+        }
+      ],
+      "top_vector_score": 0.8041,
+      "gate_refused": false,
+      "llm_called": true,
+      "answer": "You can use the `StaticFiles` class from FastAPI to serve static files. Create a directory to store the static files, for example, `static/`, and then use the following code to serve it:\n\n```python\nfrom fastapi import FastAPI, StaticFiles\n\napp = FastAPI()\n\napp.mount(\"/static\", StaticFiles(directory=\"static\"), name=\"static\")\n```\n\nThis will serve the static files at the `/static` address.",
+      "refused": false,
+      "cited_source_paths": [],
+      "cited_chunks": [],
+      "warnings": [
+        "no citations in answer",
+        "code block not found in cited sources"
+      ],
+      "latency_ms": {
+        "retrieval": 140.8,
+        "llm": 14791.2,
+        "total": 17236.92,
+        "rerank": null
+      },
+      "git_commit": "79447bf552e80c7ae336b8aedf7f1ad949f29ac1",
+      "config": {
+        "retriever": "hybrid-bm25",
+        "use_reranker": false,
+        "k": 5,
+        "min_score": 0.6,
+        "rerank_min_score": null,
+        "llm_model": "llama31-rag",
+        "temperature": 0.0
+      },
+      "model_name": "llama31-rag"
+    }
+  ]
+}

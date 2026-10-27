@@ -87,3 +87,6 @@ them without false refusals, so MIN_SCORE=0.60 only catches the 4 easiest
 | Background tasks question | Answer cited the wrong chunk and invented code (some_background_task); after the prompt fix it invented app.state.background_tasks | Weak small model; invented inline code is not caught by the code-block grounding check |
 | OAuth2 question | Refused at retrieval score 0.79 although the docs answer it | Retrieved chunks were overview and "See it in action" text with no implementation code |
 | Optional query parameters | Answer cited chunks [2] and [4] and skipped [1], the page that answers the question | Citation choice is unreliable on an 8B model |
+
+- Query "How do I mark a post route as obsolete?" (API, hybrid-bm25, local Llama 3.1 8B): the expected chunk (Path Operation Configuration > Deprecate a path operation) was retrieved at rank 2 with top_vector_score 0.689, and the model still answered "I don't know based on the documentation." Retrieval metrics (Hit@5) therefore overstate end-to-end answer quality.
+- Answer code indentation was flattened by a whitespace-collapsing regex in answer post-processing; fixed, with a regression test.

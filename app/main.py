@@ -167,23 +167,13 @@ def retrieve_chunks(
         return h_resp.results, top_v, None, None, retriever_name
 
 
-@app.post("/ask", response_model=AskResponse)
-def ask_question(request: AskRequest):
-    """
-    RAG Endpoint:
-    - Uses configured retriever (default: hybrid-bm25 with pool=50, rrf_k=60, k=5).
-    - If USE_RERANKER is True, reranks top 20 candidates with CrossEncoder.
-    - If top_vector_score < MIN_SCORE (0.60), short-circuits and refuses without calling LLM.
-    - If USE_RERANKER is True and RERANK_MIN_SCORE is set, also refuses if top_rerank_score < RERANK_MIN_SCORE.
-    - Queries OpenAI-compatible LLM endpoint (Ollama llama31-rag) with grounded prompt.
-    - Validates citations, detects refusal, filters cited sources, and tracks latency.
-    """
+def process_ask(query: str, k: int = 5) -> Tuple[AskResponse, List[Any], bool, bool]:
     start_total = time.perf_counter()
 
     # 1. Retrieval
     start_retrieval = time.perf_counter()
     chunks, top_vector_score, top_rerank_score, rerank_latency_ms, effective_retriever = retrieve_chunks(
-        query=request.query, k=request.k
+        query=query, k=k
     )
     retrieval_ms = round((time.perf_counter() - start_retrieval) * 1000, 2)
 
@@ -224,10 +214,12 @@ def ask_question(request: AskRequest):
         if top_rerank_score is not None and top_rerank_score < settings.rerank_min_score:
             refused = True
 
+    gate_refused = refused
+
     if refused:
         total_ms = round((time.perf_counter() - start_total) * 1000, 2)
-        return AskResponse(
-            query=request.query,
+        resp = AskResponse(
+            query=query,
             answer=REFUSAL_MESSAGE,
             refused=True,
             sources_cited=[],
@@ -244,6 +236,7 @@ def ask_question(request: AskRequest):
             top_rerank_score=top_rerank_score,
             rerank_latency_ms=rerank_latency_ms,
         )
+        return resp, chunks, gate_refused, False
 
     # 3. Check LLM Reachability
     if not llm_client.check_reachability():
@@ -255,7 +248,7 @@ def ask_question(request: AskRequest):
     # 4. LLM Generation
     start_llm = time.perf_counter()
     try:
-        raw_answer = llm_client.generate_answer(query=request.query, chunks=chunks)
+        raw_answer = llm_client.generate_answer(query=query, chunks=chunks)
     except ConnectionError:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -271,13 +264,13 @@ def ask_question(request: AskRequest):
 
     # 5. Citation Validation and Refusal Handling
     cleaned_answer, refused_by_llm, sources_cited, warnings = process_answer_and_citations(
-        raw_answer, k=request.k, sources_retrieved=sources_retrieved, chunks=chunks
+        raw_answer, k=k, sources_retrieved=sources_retrieved, chunks=chunks
     )
 
     total_ms = round((time.perf_counter() - start_total) * 1000, 2)
 
-    return AskResponse(
-        query=request.query,
+    resp = AskResponse(
+        query=query,
         answer=cleaned_answer,
         refused=refused_by_llm,
         sources_cited=sources_cited,
@@ -294,6 +287,22 @@ def ask_question(request: AskRequest):
         top_rerank_score=top_rerank_score,
         rerank_latency_ms=rerank_latency_ms,
     )
+    return resp, chunks, gate_refused, True
+
+
+@app.post("/ask", response_model=AskResponse)
+def ask_question(request: AskRequest):
+    """
+    RAG Endpoint:
+    - Uses configured retriever (default: hybrid-bm25 with pool=50, rrf_k=60, k=5).
+    - If USE_RERANKER is True, reranks top 20 candidates with CrossEncoder.
+    - If top_vector_score < MIN_SCORE (0.60), short-circuits and refuses without calling LLM.
+    - If USE_RERANKER is True and RERANK_MIN_SCORE is set, also refuses if top_rerank_score < RERANK_MIN_SCORE.
+    - Queries OpenAI-compatible LLM endpoint (Ollama llama31-rag) with grounded prompt.
+    - Validates citations, detects refusal, filters cited sources, and tracks latency.
+    """
+    resp, _, _, _ = process_ask(query=request.query, k=request.k)
+    return resp
 
 
 if __name__ == "__main__":
