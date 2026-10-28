@@ -1,6 +1,44 @@
 # Evaluated RAG Assistant
 
-A production-grade Retrieval-Augmented Generation (RAG) assistant built on PostgreSQL + pgvector, FastAPI, sentence-transformers (`BAAI/bge-small-en-v1.5`), and Gemini.
+A retrieval-augmented question-answering assistant over the FastAPI
+documentation, built on PostgreSQL + pgvector. It answers with citations and
+refuses when the evidence is weak. The project's focus is measurement: every
+retrieval change was compared against a frozen baseline on a development set and
+a held-out set, with decision rules written down before the runs.
+
+## Results at a glance
+
+(Retrieval only, pages judged by whether a retrieved chunk comes from an
+expected page. 31 answerable questions in v1, 20 in v2. One v2 question is 5
+percentage points.)
+
+| Retriever | v1 Hit@1 | v1 Hit@5 | v1 MRR | v2 Hit@1 | v2 Hit@5 | v2 MRR |
+|---|---|---|---|---|---|---|
+| Vector only (baseline) | 21 | 29 | 0.768 | 10 | 17 | 0.645 |
+| BM25 only | 18 | 27 | 0.715 | 10 | 16 | 0.618 |
+| Hybrid (vector + BM25, RRF) | 22 | 29 | 0.809 | 13 | 18 | 0.739 |
+| Hybrid + cross-encoder reranker | 24 | 29 | 0.844 | 15 | 18 | 0.808 |
+
+Hit counts are out of 31 (v1) and 20 (v2). Full tables, the Postgres full-text
+variant, and all provenance notes are in RESULTS.md.
+
+## What worked, what didn't
+
+- Hybrid search (vector + BM25 with rank fusion) beat vector-only on both
+  sets; the gain is small (a few questions).
+- Postgres full-text ranking, used as the keyword half, made results worse than
+  vector-only; BM25 fixed it.
+- The reranker passed its pre-registered rule on the held-out set, but on the
+  15 revised questions it was flat (MRR 0.817 vs 0.811); post-hoc, the gain comes from
+  two questions. It also adds about 7.5 s per query on CPU, so it is off by
+  default.
+- A similarity-score gate cannot reliably separate near-miss questions from
+  answerable ones (lowest answerable score 0.669 vs highest unanswerable 0.759
+  on v1).
+- End to end, the local Llama 3.1 8B model refused 3 questions whose answer was in the
+  retrieved text (2 on v1, 1 on v2), and in manual review of 15 sampled answers per set
+  about half were fully correct (v1: 7 of 15, v2: 7 of 15). See RESULTS.md,
+  "Answer quality", and FAILURES.md.
 
 ## Tech Stack
 
@@ -9,7 +47,7 @@ A production-grade Retrieval-Augmented Generation (RAG) assistant built on Postg
 - **Vector Database**: PostgreSQL 16 + pgvector (HNSW indexing with cosine distance)
 - **Database Driver**: `psycopg` (v3) + `pgvector`
 - **Embeddings**: `sentence-transformers` (`BAAI/bge-small-en-v1.5`, 384 dimensions)
-- **LLM**: Gemini API
+- **LLM**: local Llama 3.1 8B via Ollama (OpenAI-compatible endpoint)
 - **Containerization**: Docker Compose
 - **Testing**: pytest
 
@@ -65,6 +103,31 @@ Evaluated-RAG-Assistant/
    python -m ingest.run --docs data/docs
    ```
 
+6. Set up Ollama and the custom model:
+
+   Install Ollama, make sure Ollama is running (`ollama serve`), pull the base model, and create `llama31-rag` from the repository's Modelfile:
+
+   ```bash
+   ollama pull llama3.1:8b
+   ollama create llama31-rag -f Modelfile
+   ```
+
+   *Note*: The model needs about 5 GB; on a GPU with 4 GB VRAM it partly runs on CPU, so answers take roughly 6 to 60 seconds.
+
+7. Start the API server:
+
+   ```bash
+   python -m app.main
+   ```
+
+### First run note
+
+The embedding model (`BAAI/bge-small-en-v1.5`) downloads automatically on first use. The optional cross-encoder reranker (`BAAI/bge-reranker-base`, about 1.1 GB) downloads only if `USE_RERANKER=true`.
+
+Embeddings run on whichever device SentenceTransformer selects (CUDA if available, otherwise CPU); the evaluation results in RESULTS.md were produced on a laptop with a 4 GB GPU. Scores can differ slightly on other hardware.
+
+The BM25 index is built in the background at startup; /health answers immediately and the first /ask waits for the index if it is not ready.
+
 ## Configuration
 
 The assistant is configured via environment variables or `.env`:
@@ -75,5 +138,8 @@ The assistant is configured via environment variables or `.env`:
 | `USE_RERANKER` | `false` | Whether to enable cross-encoder reranking (`BAAI/bge-reranker-base`) over the top 20 candidates. |
 | `MIN_SCORE` | `0.60` | Score gate threshold applied to `top_vector_score` across all retrievers. Queries with `top_vector_score < MIN_SCORE` are refused without invoking the LLM. |
 | `RERANK_MIN_SCORE` | *unset* | Optional score gate threshold applied to `top_rerank_score` when `USE_RERANKER` is true. `RERANK_MIN_SCORE` is not set by default because the v1-derived 0.502 threshold passes 5 of 11 unanswerable questions on v2. |
+| `LLM_BASE_URL` | `http://localhost:11434/v1` | Base URL for Ollama / OpenAI-compatible LLM endpoint. |
+| `LLM_MODEL` | `llama31-rag` | Model name to invoke for answer generation. |
+| `LLM_TIMEOUT_SECONDS` | `300` | Request timeout in seconds for LLM generation calls. |
 | `APP_PORT` | `8001` | Server listening port. |
 
