@@ -77,6 +77,67 @@ Querying:
 - `latency_ms`: Latency breakdown object with `retrieval`, `llm`, `total`, and optional `rerank` in milliseconds.
 - `retriever`: The retriever pipeline that handled the request (e.g. `hybrid-bm25` or `hybrid-bm25-rerank`).
 
+## How the evaluation works
+
+### 1. Question sets
+
+- **v1 (`eval/questions.jsonl`)**: 40 questions (31 answerable, 9 unanswerable). Drafted with AI assistance and source-verified against FastAPI documentation text; used during development to diagnose the full-text retrieval problem and choose BM25 as the keyword retriever (BM25 parameters stayed at the library defaults, k1=1.5 and b=0.75).
+- **v2 (`eval/questions_v2.jsonl`)**: 31 questions (20 answerable, 11 unanswerable). Written after analyzing v1 failure modes, kept frozen and untouched until the evaluation decision rules were written down, and reported as the held-out test set.
+- **Hit matching**: Evaluated at page level. A retrieval hit occurs if any retrieved top-k chunk originates from an `expected_sources` documentation page.
+
+### 2. Metrics
+
+- **Retrieval**: Hit@1, Hit@3, Hit@5, and Mean Reciprocal Rank (MRR) across answerable questions.
+- **Refusal gating**: Refusal rate on unanswerable questions (higher is better) and false-refusal rate on answerable questions with an expected page in top 5 (lower is better).
+- **Answer quality**: Manual review of answer samples scored into three categories: `correct`, `partly`, or `incorrect`.
+
+### 3. Pre-registration & Provenance
+
+Decision rules were written into `eval/PREREGISTRATION*.md` before the experimental runs they govern:
+- `eval/PREREGISTRATION.md`: Hybrid-BM25 decision rule (committed at `e81b1b2` before the v2 evaluation runs).
+- `eval/PREREGISTRATION_RERANK.md` and `PREREGISTRATION_RERANK_ADDENDUM.md`: Cross-encoder reranker decision rule (committed at `f4c6ceb` before the reranker runs).
+- `eval/PREREGISTRATION_ANSWERS.md`: End-to-end answer evaluation rules. Written at 19:38 IST (file creation time) before any run, and committed at 19:46 IST after the v1 run had started (19:44 IST), but before the v2 run (19:57 IST) and the recheck run (20:04 IST). The v1 answer results cannot be proven by git history to postdate the committed rules; v2 and recheck can.
+
+### 4. Frozen results
+
+All raw results used in the evaluation tables are preserved in `eval/baselines/`:
+- Retrieval runs: `baseline-vector-only.json`, `bm25-only.json`, `fulltext-only.json`, `hybrid-bm25-v1.json`, `hybrid-rrf-v1.json`, `hybrid-rrf-tiebreak.json`, `v1-hybrid-bm25-rerank.json`, `v2-vector-only.json`, `v2-bm25-only.json`, `v2-hybrid-bm25.json`, and `v2-hybrid-bm25-rerank.json`.
+- Answer runs: `answers-v1.json`, `answers-v2.json`, and `answers-v1-recheck.json` (repeated runs produced identical answers and refusal outcomes).
+- Manual reviews: `eval/reviews/answers-v1-review.md`, `answers-v2-review.md`, `answers-v1-flagged.md`, and `false-refusals.md`.
+
+### 5. How to rerun
+
+All evaluation scripts are runnable from the repository root:
+
+- **Run retrieval evaluation**:
+  ```bash
+  python -m eval.run_eval --questions eval/questions.jsonl --retriever hybrid-bm25 --run-name my-v1-run
+  python -m eval.run_eval --questions eval/questions_v2.jsonl --retriever hybrid-bm25 --run-name my-v2-run
+  python -m eval.run_eval --questions eval/questions_v2.jsonl --retriever hybrid-bm25-rerank --run-name my-v2-rerank
+  ```
+- **Compare two retrieval runs**:
+  ```bash
+  python -m eval.compare baseline-vector-only hybrid-bm25-v1
+  python -m eval.compare v2-vector-only v2-hybrid-bm25
+  ```
+- **Run end-to-end answer evaluation** (requires running Ollama server with `llama31-rag`):
+  ```bash
+  python eval/run_answer_eval.py --questions eval/questions.jsonl --run-name answers-v1-run
+  python eval/run_answer_eval.py --questions eval/questions_v2.jsonl --run-name answers-v2-run
+  ```
+  *(To evaluate specific questions only, use `--ids q001,q002`).*
+- **Generate answer report & review template**:
+  ```bash
+  python eval/answer_report.py eval/baselines/answers-v1.json
+  ```
+
+### 6. Known limitations
+
+- **Small sample sizes**: With 20 answerable questions on v2, each question accounts for 5.0 percentage points on Hit@1 and Hit@5; in 15-answer review samples, one question represents 6.7 percentage points.
+- **Development set bias**: The v1 set (31 answerable questions) was AI-drafted and used during iterative development, potentially favoring keyword matching.
+- **Page-level hit matching**: A hit counts any chunk from an expected page, even if the specific chunk lacks the information needed to answer the question (e.g. `q002` retrieved 4 expected-page chunks in its top 5, none showing the OAuth2PasswordBearer setup).
+- **Assisted manual review**: Answer correctness verdicts were first-pass drafts written with Claude and checked by the author against each cited chunk, deviating from the author-only scoring specified in the pre-registration protocol.
+
 ## Tech Stack
 
 - **Runtime**: Python 3.11
