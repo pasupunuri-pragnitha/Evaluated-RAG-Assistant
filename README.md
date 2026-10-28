@@ -40,6 +40,43 @@ variant, and all provenance notes are in RESULTS.md.
   about half were fully correct (v1: 7 of 15, v2: 7 of 15). See RESULTS.md,
   "Answer quality", and FAILURES.md.
 
+## How it works
+
+```text
+Indexing:
+  docs (Markdown) -> loader (inline code examples, strip HTML)
+                  -> heading-aware chunker (~400 tokens, ~50 overlap)
+                  -> bge-small embeddings
+                  -> PostgreSQL + pgvector (HNSW) & BM25 index (in memory)
+
+Querying:
+  question -> vector search + BM25 search
+           -> reciprocal rank fusion (pool 50, k=60) -> top 5 chunks
+           -> [optional cross-encoder reranker over top 20]
+           -> cosine gate (refuse if top_vector_score < 0.60, no LLM call)
+           -> local Llama 3.1 8B ("answer only from the context, cite as [n]")
+           -> answer + citations + warnings
+```
+
+**Ingestion**: Document ingestion is idempotent, computing a SHA-256 hash of each Markdown file and skipping unchanged files. Modified or new documents are chunked along heading hierarchies (~400 target tokens, ~50 token overlap, merging blocks under 80 tokens) and versioned in PostgreSQL. Chunks are embedded with `BAAI/bge-small-en-v1.5` and indexed with pgvector HNSW, while an in-memory BM25Okapi index is loaded at server startup.
+
+**Retrieval**: Questions are queried across vector search (cosine distance) and an in-memory BM25 index. Candidate chunks from both retrievers (top 50 each) are combined using Reciprocal Rank Fusion (RRF with k=60) to select the top 5 chunks. If cross-encoder reranking is enabled, the top 20 RRF candidates are re-scored with `BAAI/bge-reranker-base` before returning the top 5.
+
+**Refusal gate**: Before invoking the LLM, the pipeline checks the top chunk's cosine similarity score against a threshold (`MIN_SCORE = 0.60`). If `top_vector_score < 0.60`, the request short-circuits immediately without calling the LLM, returning `"I don't know based on the documentation."`. When reranking is active and `RERANK_MIN_SCORE` is set, a secondary gate checks the top rerank score.
+
+**Answer post-processing**: The generated answer is checked for model refusal, and citation brackets (`[n]`) are parsed and validated against retrieved chunk indices (1 to k). Out-of-bounds citations are removed with a warning, and cited sources are filtered to only those referenced in the text. If the answer contains a fenced code block where more than half of the lines cannot be found in the cited chunk text, a `"code block not found in cited sources"` warning is attached.
+
+### Response fields (`/ask`)
+
+- `answer`: Generated answer text, cleaned of invalid citation brackets, or the standardized refusal message.
+- `refused`: Boolean indicating whether the question was refused by the score gate or the model.
+- `sources_cited`: List of retrieved source objects referenced by `[n]` citations in the answer.
+- `sources_retrieved`: Complete list of top retrieved source items, each with `source_path`, `title`, `heading_path`, `score` (plain vector retriever only), and retriever scores (`vector_score`, `rrf_score`, and optional `rerank_score`).
+- `top_vector_score`: Best cosine similarity from the vector search for the query (this is the value the refusal gate uses; it can exceed the vector score of every chunk in the fused top 5).
+- `warnings`: List of validation warnings (e.g. invalid citation removed, no citations, or unverified code block).
+- `latency_ms`: Latency breakdown object with `retrieval`, `llm`, `total`, and optional `rerank` in milliseconds.
+- `retriever`: The retriever pipeline that handled the request (e.g. `hybrid-bm25` or `hybrid-bm25-rerank`).
+
 ## Tech Stack
 
 - **Runtime**: Python 3.11
