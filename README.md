@@ -171,10 +171,20 @@ Evaluated-RAG-Assistant/
 
 ## Quick Start
 
-1. Copy `.env.example` to `.env` and fill in credentials:
+Requirements: Python 3.11, Docker Desktop (running), Ollama, about 8 GB free disk (the first pip install pulls PyTorch and can take 5+ minutes).
+
+1. Copy `.env.example` to `.env` (the defaults work for local use; there is nothing to fill in):
+
+   macOS / Linux:
 
    ```bash
    cp .env.example .env
+   ```
+
+   Windows:
+
+   ```cmd
+   copy .env.example .env
    ```
 
 2. Start the PostgreSQL + pgvector container:
@@ -183,25 +193,45 @@ Evaluated-RAG-Assistant/
    docker compose up -d
    ```
 
-3. Install dependencies:
+   If port 5433 is already in use, change POSTGRES_PORT and DATABASE_URL in `.env`.
+
+3. Create and activate a virtual environment:
+
+   ```bash
+   python -m venv .venv
+   ```
+
+   macOS / Linux:
+
+   ```bash
+   source .venv/bin/activate
+   ```
+
+   Windows:
+
+   ```powershell
+   .\.venv\Scripts\activate
+   ```
+
+4. Install dependencies:
 
    ```bash
    pip install -r requirements.txt
    ```
 
-4. Download FastAPI documentation (shallow clone):
+5. Download FastAPI documentation (shallow clone):
 
    ```bash
    python scripts/download_docs.py
    ```
 
-5. Ingest documentation into PostgreSQL:
+6. Ingest documentation into PostgreSQL:
 
    ```bash
    python -m ingest.run --docs data/docs
    ```
 
-6. Set up Ollama and the custom model:
+7. Set up Ollama and the custom model:
 
    Install Ollama, make sure Ollama is running (`ollama serve`), pull the base model, and create `llama31-rag` from the repository's Modelfile:
 
@@ -212,7 +242,7 @@ Evaluated-RAG-Assistant/
 
    *Note*: The model needs about 5 GB; on a GPU with 4 GB VRAM it partly runs on CPU, so answers take roughly 6 to 60 seconds.
 
-7. Start the API server:
+8. Start the API server:
 
    ```bash
    python -m app.main
@@ -226,12 +256,17 @@ Embeddings run on whichever device SentenceTransformer selects (CUDA if availabl
 
 The BM25 index is built in the background at startup; /health answers immediately and the first /ask waits for the index if it is not ready.
 
+Verified from a fresh clone on 2026-10-28: ingestion produced 124 documents and 1,117 chunks (about 4 minutes on a laptop) and the first test question returned the same answer and score as the development setup.
+
 ## Configuration
 
 The assistant is configured via environment variables or `.env`:
 
 | Variable | Default | Description |
 |---|---|---|
+| `POSTGRES_PORT` | `5433` | Host port mapped to PostgreSQL in `docker-compose.yml`. |
+| `DATABASE_URL` | `postgresql://postgres:postgres@localhost:5433/rag_db` | PostgreSQL connection URL. |
+| `EMBEDDING_DIMENSION` | `384` | Embedding vector dimension for `BAAI/bge-small-en-v1.5`. |
 | `RETRIEVER` | `hybrid-bm25` | Retriever pipeline: `vector`, `hybrid-bm25`, or `hybrid-bm25-rerank`. |
 | `USE_RERANKER` | `false` | Whether to enable cross-encoder reranking (`BAAI/bge-reranker-base`) over the top 20 candidates. |
 | `MIN_SCORE` | `0.60` | Score gate threshold applied to `top_vector_score` across all retrievers. Queries with `top_vector_score < MIN_SCORE` are refused without invoking the LLM. |
@@ -240,4 +275,3 @@ The assistant is configured via environment variables or `.env`:
 | `LLM_MODEL` | `llama31-rag` | Model name to invoke for answer generation. |
 | `LLM_TIMEOUT_SECONDS` | `300` | Request timeout in seconds for LLM generation calls. |
 | `APP_PORT` | `8001` | Server listening port. |
-
