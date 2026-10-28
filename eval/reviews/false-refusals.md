@@ -1,6 +1,6 @@
 # False Refusals Analysis
 
-3 of 4 reviewed refusals were real false refusals (q011, q024 on v1; v016 on v2). 1 (q002) was defensible. Note: some chunk texts in this file were fetched by source_path and heading_path, so chunks sharing a heading may show duplicated text; the verdicts above rely only on chunks whose text is distinct.
+3 of 4 reviewed refusals were real false refusals (q011, q024 on v1; v016 on v2). 1 (q002) was defensible. Note: chunk texts below come from the 'content' fields saved in eval/baselines/answers-v1.json and answers-v2.json; the verdicts above rely only on chunks whose text is distinct.
 
 Detailed inspection of false-refusal questions from v1 (q002, q011, q024) and v2 (v016).
 
@@ -49,32 +49,39 @@ After authenticating in the system, you will see it like:
 #### Rank 3: `docs/fastapi/advanced/security/oauth2-scopes.md` > `OAuth2 scopes > OAuth2 Security scheme`
 - **Scores**: vector_score=0.7341, rrf_score=0.028485
 ```markdown
-async def get_current_active_user(
-    current_user: Annotated[User, Security(get_current_user, scopes=["me"])],
+async def get_current_user(
+    security_scopes: SecurityScopes, token: Annotated[str, Depends(oauth2_scheme)]
 ):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
-
-@app.post("/token")
-async def login_for_access_token(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-) -> Token:
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.username, "scope": " ".join(form_data.scopes)},
-        expires_delta=access_token_expires,
+    if security_scopes.scopes:
+        authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
+    else:
+        authenticate_value = "Bearer"
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": authenticate_value},
     )
-    return Token(access_token=access_token, token_type="bearer")
-
-@app.get("/users/me/")
-async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_active_user)],
-) -> User:
-    return current_user
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+        scope: str = payload.get("scope", "")
+        token_scopes = scope.split(" ")
+        token_data = TokenData(scopes=token_scopes, username=username)
+    except (InvalidTokenError, ValidationError):
+        raise credentials_exception
+    user = get_user(fake_users_db, username=token_data.username)
+    if user is None:
+        raise credentials_exception
+    for scope in security_scopes.scopes:
+        if scope not in token_data.scopes:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not enough permissions",
+                headers={"WWW-Authenticate": authenticate_value},
+            )
+    return user
 ```
 
 #### Rank 4: `docs/fastapi/tutorial/security/first-steps.md` > `Security - First Steps` [EXPECTED PAGE]
@@ -565,65 +572,77 @@ So, you might still need to use Pydantic models.
 #### Rank 3: `docs/fastapi/advanced/dataclasses.md` > `Using Dataclasses > Dataclasses in Nested Data Structures` [EXPECTED PAGE]
 - **Scores**: vector_score=0.8147, rrf_score=0.032002
 ```markdown
-You can also combine `dataclasses` with other type annotations to make nested data structures.
+@app.get("/authors/", response_model=list[Author])  # (7)
+def get_authors():  # (8)
+    return [  # (9)
+        {
+            "name": "Breaters",
+            "items": [
+                {
+                    "name": "Island In The Moon",
+                    "description": "A place to be playin' and havin' fun",
+                },
+                {"name": "Holy Buddies"},
+            ],
+        },
+        {
+            "name": "System of an Up",
+            "items": [
+                {
+                    "name": "Salt",
+                    "description": "The kombucha mushroom people's favorite",
+                },
+                {"name": "Pad Thai"},
+                {
+                    "name": "Lonely Night",
+                    "description": "The mostests lonliest nightiest of allest",
+                },
+            ],
+        },
+    ]
+```
 
-In some cases, you might still have to use Pydantic's version of `dataclasses`. For example, if you have errors with the automatically generated API documentation.
+1. We still import `field` from standard `dataclasses`.
 
-In that case, you can simply swap the standard `dataclasses` with `pydantic.dataclasses`, which is a drop-in replacement:
+2. `pydantic.dataclasses` is a drop-in replacement for `dataclasses`.
 
-```python
-from dataclasses import field  # (1)
+3. The `Author` dataclass includes a list of `Item` dataclasses.
 
-from fastapi import FastAPI
-from pydantic.dataclasses import dataclass  # (2)
+4. The `Author` dataclass is used as the `response_model` parameter.
 
-@dataclass
-class Item:
-    name: str
-    description: str | None = None
+5. You can use other standard type annotations with dataclasses as the request body.
 
-@dataclass
-class Author:
-    name: str
-    items: list[Item] = field(default_factory=list)  # (3)
+In this case, it's a list of `Item` dataclasses.
 
-app = FastAPI()
+6. Here we are returning a dictionary that contains `items` which is a list of dataclasses.
 
-@app.post("/authors/{author_id}/items/", response_model=Author)  # (4)
-async def create_author_items(author_id: str, items: list[Item]):  # (5)
-    return {"name": author_id, "items": items}  # (6)
+FastAPI is still capable of serializing the data to JSON.
+
+7. Here the `response_model` is using a type annotation of a list of `Author` dataclasses.
+
+Again, you can combine `dataclasses` with standard type annotations.
 ```
 
 #### Rank 4: `docs/fastapi/advanced/dataclasses.md` > `Using Dataclasses > Dataclasses in Nested Data Structures` [EXPECTED PAGE]
 - **Scores**: vector_score=0.7962, rrf_score=0.03125
 ```markdown
-You can also combine `dataclasses` with other type annotations to make nested data structures.
+7. Here the `response_model` is using a type annotation of a list of `Author` dataclasses.
 
-In some cases, you might still have to use Pydantic's version of `dataclasses`. For example, if you have errors with the automatically generated API documentation.
+Again, you can combine `dataclasses` with standard type annotations.
 
-In that case, you can simply swap the standard `dataclasses` with `pydantic.dataclasses`, which is a drop-in replacement:
+8. Notice that this *path operation function* uses regular `def` instead of `async def`.
 
-```python
-from dataclasses import field  # (1)
+As always, in FastAPI you can combine `def` and `async def` as needed.
 
-from fastapi import FastAPI
-from pydantic.dataclasses import dataclass  # (2)
+If you need a refresher about when to use which, check out the section _"In a hurry?"_ in the docs about [`async` and `await`](../async.md#in-a-hurry).
 
-@dataclass
-class Item:
-    name: str
-    description: str | None = None
+9. This *path operation function* is not returning dataclasses (although it could), but a list of dictionaries with internal data.
 
-@dataclass
-class Author:
-    name: str
-    items: list[Item] = field(default_factory=list)  # (3)
+FastAPI will use the `response_model` parameter (that includes dataclasses) to convert the response.
 
-app = FastAPI()
+You can combine `dataclasses` with other type annotations in many different combinations to form complex data structures.
 
-@app.post("/authors/{author_id}/items/", response_model=Author)  # (4)
-async def create_author_items(author_id: str, items: list[Item]):  # (5)
-    return {"name": author_id, "items": items}  # (6)
+Check the in-code annotation tips above to see more specific details.
 ```
 
 #### Rank 5: `docs/fastapi/advanced/dataclasses.md` > `Using Dataclasses > Dataclasses in Nested Data Structures` [EXPECTED PAGE]
