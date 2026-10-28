@@ -175,7 +175,7 @@ Evaluated-RAG-Assistant/
 ├── db/               # PostgreSQL schema and initialization scripts
 ├── scripts/          # Helper utilities (documentation downloader)
 ├── data/             # Documentation directory (downloaded via script, not committed)
-├── ui/               # Not implemented (empty placeholder)
+├── ui/               # Streamlit page that calls the API (ui/app.py)
 ├── docker-compose.yml# Container orchestration for pgvector service
 ├── Modelfile         # Ollama model definition for llama31-rag
 ├── .env.example      # Environment variable template
@@ -293,6 +293,23 @@ curl -X POST http://localhost:8001/ask \
 ```
 
 Questions outside the documentation (for example, "What is the capital of France?") are refused without calling the model.
+
+## Web UI
+
+A minimal Streamlit page that calls the API is provided in `ui/`. It shows the answer, cited sources (linked to the live FastAPI docs, which may be a newer version than the indexed copy), a collapsed list of all retrieved sources, warnings, and the retriever/score/latency; there is no feedback or history feature.
+
+With the API running first:
+
+```bash
+pip install -r ui/requirements.txt
+streamlit run ui/app.py
+```
+
+Open `http://localhost:8501` in your browser. The page connects to the backend using the `API_URL` environment variable (default `http://localhost:8001`).
+
+![Web UI answer with cited sources](docs/ui-answer.png)
+
+![Web UI refusal notice](docs/ui-refused.png)
 
 ## Configuration
 
