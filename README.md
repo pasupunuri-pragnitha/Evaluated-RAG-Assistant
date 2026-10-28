@@ -153,20 +153,36 @@ All evaluation scripts are runnable from the repository root:
 
 ```text
 Evaluated-RAG-Assistant/
-├── app/              # FastAPI application endpoints and schemas
-├── ingest/           # Markdown document ingestion, heading chunking, and batch embedding
-├── retrieval/        # Vector similarity search over pgvector
-├── eval/             # Evaluation pipelines (Phase 2+)
-├── ui/               # User interface (Phase 2+)
-├── tests/            # Test suite (chunker, search, API)
-├── db/               # Database initialization SQL scripts
-├── scripts/          # Helper scripts (docs downloader)
-├── data/
-│   └── docs/         # Source Markdown knowledge documents
+├── app/              # FastAPI application, configuration, schemas, and LLM client
+├── ingest/           # Markdown loader, heading-aware chunker, and embedding pipeline
+├── retrieval/        # Retrieval strategies
+│   ├── vector.py     # Dense vector similarity search (pgvector HNSW)
+│   ├── fulltext.py   # PostgreSQL full-text search (tsvector/tsquery)
+│   ├── bm25.py       # In-memory BM25Okapi keyword search
+│   ├── hybrid.py     # Reciprocal rank fusion of vector and BM25
+│   └── rerank.py     # Optional cross-encoder reranker (bge-reranker-base)
+├── eval/             # Evaluation harness, question sets, baselines, and reviews
+│   ├── run_eval.py   # Retrieval evaluation pipeline
+│   ├── compare.py    # Metric comparison across retrieval baselines
+│   ├── run_answer_eval.py # End-to-end answer quality evaluation runner
+│   ├── answer_report.py   # Answer metrics and manual-review templates
+│   ├── questions.jsonl    # Development question set v1 (40 questions)
+│   ├── questions_v2.jsonl # Held-out question set v2 (31 questions)
+│   ├── PREREGISTRATION*.md# Pre-registration protocols for retrieval and answer runs
+│   ├── baselines/    # Frozen retrieval and answer run outputs
+│   └── reviews/      # Manual answer audits and refusal inspections
+├── tests/            # Test suite for chunker, loaders, retrievers, and API
+├── db/               # PostgreSQL schema and initialization scripts
+├── scripts/          # Helper utilities (documentation downloader)
+├── data/             # Documentation directory (downloaded via script, not committed)
+├── ui/               # Not implemented (empty placeholder)
 ├── docker-compose.yml# Container orchestration for pgvector service
-├── .env.example      # Environment variables template
-├── requirements.txt  # Python dependencies
-└── README.md
+├── Modelfile         # Ollama model definition for llama31-rag
+├── .env.example      # Environment variable template
+├── requirements.txt  # Python package dependencies
+├── README.md         # Architecture, setup instructions, and evaluation summary
+├── RESULTS.md        # Comprehensive retrieval and answer evaluation benchmarks
+└── FAILURES.md       # Failure cases and findings (retrieval, gate, generation)
 ```
 
 ## Quick Start
@@ -252,11 +268,31 @@ Requirements: Python 3.11, Docker Desktop (running), Ollama, about 8 GB free dis
 
 The embedding model (`BAAI/bge-small-en-v1.5`) downloads automatically on first use. The optional cross-encoder reranker (`BAAI/bge-reranker-base`, about 1.1 GB) downloads only if `USE_RERANKER=true`.
 
-Embeddings run on whichever device SentenceTransformer selects (CUDA if available, otherwise CPU); the evaluation results in RESULTS.md were produced on a laptop with a 4 GB GPU. Scores can differ slightly on other hardware.
+Embeddings run on whichever device SentenceTransformer selects (CUDA if available, otherwise CPU); the evaluation results in RESULTS.md were produced on a machine with a 4 GB GPU. Scores can differ slightly on other hardware.
 
 The BM25 index is built in the background at startup; /health answers immediately and the first /ask waits for the index if it is not ready.
 
-Verified from a fresh clone on 2026-10-28: ingestion produced 124 documents and 1,117 chunks (about 4 minutes on a laptop) and the first test question returned the same answer and score as the development setup.
+Verified from a fresh clone on 2026-10-28: ingestion produced 124 documents and 1,117 chunks (about 4 minutes on a development machine) and the first test question returned the same answer and score as the development setup.
+
+## Try it
+
+Ask a question using PowerShell:
+
+```powershell
+Invoke-RestMethod -Method Post -Uri "http://localhost:8001/ask" `
+  -ContentType "application/json" `
+  -Body '{"query": "How do I declare optional query parameters?"}'
+```
+
+Or using curl:
+
+```bash
+curl -X POST http://localhost:8001/ask \
+  -H "Content-Type: application/json" \
+  -d '{"query": "How do I declare optional query parameters?"}'
+```
+
+Questions outside the documentation (for example, "What is the capital of France?") are refused without calling the model.
 
 ## Configuration
 
