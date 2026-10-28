@@ -1,5 +1,7 @@
 # Flagged Answered Questions: v1
 
+Verdicts below are first-pass drafts written by Claude and checked by the author against each cited chunk. This deviates from the pre-registered protocol (PREREGISTRATION_ANSWERS.md, item E), which specified author-only scoring. These are the 2 answered v1 questions that had a warning and were not in the standard review sample.
+
 Answered questions that have a warning or are not page-grounded, and were NOT in the standard review file (2 questions).
 
 ## [q021] How do I configure OAuth2PasswordBearer with a custom tokenUrl in my security scheme?
@@ -62,7 +64,7 @@ All the security utilities that integrate with OpenAPI (and the automatic API do
 ///
 ```
 
-verdict: correct / partly / incorrect
+verdict: partly - core claim (pass tokenUrl when creating an OAuth2PasswordBearer instance) is right, but the code uses tokenUrl="custom-token-url" while the chunk shows tokenUrl="token"; the warning correctly flagged the changed value. Judgment call between partly and correct.
 
 ---
 
@@ -161,6 +163,8 @@ INFO   Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to
 If you prefer to use the `uvicorn` command directly:
 ```
 
-verdict: correct / partly / incorrect
+verdict: partly - the --workers option and "fastapi run --workers 4 main.py" are in the chunk, but the uvicorn command is not in the cited text (the chunk ends just before it), so it cannot be verified from what the model was given.
 
 ---
+
+Tally: 0 correct, 2 partly, 0 incorrect (n=2). Note: both 'code block not found in cited sources' warnings detected real deviations from the cited text (a changed value in q021, an unverifiable command in q038).

@@ -1,5 +1,7 @@
 # Manual Review: answers-v1
 
+Verdicts below are first-pass drafts written by Claude and checked by the author against each cited chunk. This deviates from the pre-registered protocol (PREREGISTRATION_ANSWERS.md, item E), which specified author-only scoring. The sample is the first 15 answered questions by id, not a random draw.
+
 Reviewing 15 answered questions (ordered by id).
 Score each question as: correct / partly / incorrect.
 
@@ -51,7 +53,7 @@ Also notice that **FastAPI** is smart enough to notice that the path parameter `
 ///
 ```
 
-verdict: correct / partly / incorrect
+verdict: correct
 
 ---
 
@@ -116,7 +118,7 @@ async def upsert_item(
 /// warning
 ```
 
-verdict: correct / partly / incorrect
+verdict: incorrect - never gives the real answer (status_code in the decorator); misreads the additional-status-codes example as a way to change a default and invents status.HTTP_201.
 
 ---
 
@@ -226,7 +228,7 @@ If you are wondering, "AlexNet", "ResNet", and "LeNet" are just names of Machine
 ///
 ```
 
-verdict: correct / partly / incorrect
+verdict: correct
 
 ---
 
@@ -350,7 +352,7 @@ async def read_item(item_id: int):
 ```
 ```
 
-verdict: correct / partly / incorrect
+verdict: correct - claim is in chunk 2; answer opens with a stray "[1] [2]".
 
 ---
 
@@ -412,7 +414,7 @@ For example, if you need to store it in a database.
 For that, **FastAPI** provides a `jsonable_encoder()` function.
 ```
 
-verdict: correct / partly / incorrect
+verdict: correct
 
 ---
 
@@ -466,7 +468,7 @@ By default, `fastapi dev` will start with auto-reload enabled for local developm
 You can read more about it in the [FastAPI CLI docs](https://fastapi.tiangolo.com/fastapi-cli/).
 ```
 
-verdict: correct / partly / incorrect
+verdict: correct - terse but supported.
 
 ---
 
@@ -554,7 +556,7 @@ async def send_notification(email: str, background_tasks: BackgroundTasks):
 * Any keyword arguments that should be passed to the task function (`message="some notification"`).
 ```
 
-verdict: correct / partly / incorrect
+verdict: partly - says the task function must be a normal def without async def, but the chunk says either works; never shows the BackgroundTasks parameter.
 
 ---
 
@@ -609,7 +611,7 @@ async def read_items(
 ```
 ```
 
-verdict: correct / partly / incorrect
+verdict: incorrect - question asks for greater than 0 and less than 100 (gt/lt); answer uses ge=0, le=100, and the chunk's code has le=1000.
 
 ---
 
@@ -652,7 +654,7 @@ async def read_item(item_id: str):
 ```
 ```
 
-verdict: correct / partly / incorrect
+verdict: partly - HTTPException part is right; the "original code" with JSONResponse(status_code=404, ...) is not in the chunk.
 
 ---
 
@@ -681,7 +683,7 @@ This way, the session will be created and closed automatically for each request.
 **Cited Sources & Chunk Content**:
 *(No cited sources)*
 
-verdict: correct / partly / incorrect
+verdict: partly - no cited sources, so the answer cannot be checked against retrieved text.
 
 ---
 
@@ -851,7 +853,7 @@ You can later read more about other middlewares in the [Advanced User Guide: Adv
 You will read about how to handle CORS with a middleware in the next section.
 ```
 
-verdict: correct / partly / incorrect
+verdict: partly - middleware is correct but the print in milliseconds is the model's own adaptation (docs set a header in seconds); padded with unrelated middleware-order text.
 
 ---
 
@@ -876,7 +878,7 @@ This will serve the static files at the `/static` address.
 **Cited Sources & Chunk Content**:
 *(No cited sources)*
 
-verdict: correct / partly / incorrect
+verdict: incorrect - "from fastapi import FastAPI, StaticFiles" is wrong (should be from fastapi.staticfiles import StaticFiles) and nothing is cited.
 
 ---
 
@@ -1075,7 +1077,7 @@ test_main.py ......                            [100%]
 ```
 ```
 
-verdict: correct / partly / incorrect
+verdict: correct - omits the chunk's note to install httpx first.
 
 ---
 
@@ -1113,7 +1115,7 @@ So, all these are different origins:
 Even if they are all in `localhost`, they use different protocols or ports, so, they are different "origins".
 ```
 
-verdict: correct / partly / incorrect
+verdict: correct
 
 ---
 
@@ -1147,6 +1149,8 @@ If you are coming from another async framework that does not work in the way des
 Still, in both situations, chances are that **FastAPI** will [still be faster](index.md#performance) than (or at least comparable to) your previous framework.
 ```
 
-verdict: correct / partly / incorrect
+verdict: incorrect - second sentence reverses the source: the chunk says to use async def for trivial functions unless they do blocking I/O, the answer says to avoid it.
 
 ---
+
+Tally: 7 correct, 4 partly, 4 incorrect (n=15). Note: q003, q010 and q018 all cite an expected page, so page-level grounding counted them as grounded although they are incorrect.

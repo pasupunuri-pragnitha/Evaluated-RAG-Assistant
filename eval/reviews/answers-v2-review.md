@@ -1,5 +1,7 @@
 # Manual Review: answers-v2
 
+Verdicts below are first-pass drafts written by Claude and checked by the author against each cited chunk. This deviates from the pre-registered protocol (PREREGISTRATION_ANSWERS.md, item E), which specified author-only scoring. The sample is the first 15 answered questions by id, not a random draw.
+
 Reviewing 15 answered questions (ordered by id).
 Score each question as: correct / partly / incorrect.
 
@@ -60,7 +62,7 @@ With just that Python type declaration, **FastAPI** will:
 * Those schemas will be part of the generated OpenAPI schema, and used by the automatic documentation UIs.
 ```
 
-verdict: correct / partly / incorrect
+verdict: incorrect - question asks how to declare single primitive values in the body (Body()); the cited chunk is a generic results section and does not cover it, and the answer wraps each value in a Pydantic model instead.
 
 ---
 
@@ -149,7 +151,7 @@ So, it will then use the parameter names as keys (field names) in the body, and 
 /// note
 ```
 
-verdict: correct / partly / incorrect
+verdict: correct
 
 ---
 
@@ -183,7 +185,7 @@ In this example, `ads_id` is a cookie parameter that can be accessed in the rout
 **Cited Sources & Chunk Content**:
 *(No cited sources)*
 
-verdict: correct / partly / incorrect
+verdict: partly - Cookie explanation and code look right, but nothing was cited, so they cannot be checked against retrieved text.
 
 ---
 
@@ -215,7 +217,7 @@ But even if you **fill the data** and click "Execute", because the docs UI works
 ///
 ```
 
-verdict: correct / partly / incorrect
+verdict: correct - terse but supported.
 
 ---
 
@@ -249,7 +251,7 @@ You can combine `dataclasses` with other type annotations in many different comb
 Check the in-code annotation tips above to see more specific details.
 ```
 
-verdict: correct / partly / incorrect
+verdict: incorrect - question asks about annotating the function return type; the answer describes response_model with List[Author], which is a different mechanism, and cites an advanced dataclasses page rather than the response-model page.
 
 ---
 
@@ -300,7 +302,7 @@ Here are some of the additional data types you can use:
 * In responses, the `set` will be converted to a `list`.
 ```
 
-verdict: correct / partly / incorrect
+verdict: correct
 
 ---
 
@@ -351,7 +353,7 @@ Here are some of the additional data types you can use:
 * In responses, the `set` will be converted to a `list`.
 ```
 
-verdict: correct / partly / incorrect
+verdict: correct
 
 ---
 
@@ -391,7 +393,7 @@ After a week, the token will be expired and the user will not be authorized and 
 If you want to play with JWT tokens and see how they work, check [https://jwt.io](https://jwt.io/).
 ```
 
-verdict: correct / partly / incorrect
+verdict: correct
 
 ---
 
@@ -431,7 +433,7 @@ After a week, the token will be expired and the user will not be authorized and 
 If you want to play with JWT tokens and see how they work, check [https://jwt.io](https://jwt.io/).
 ```
 
-verdict: correct / partly / incorrect
+verdict: partly - "a dense string without spaces" is in the chunk, but the answer does not say what the format is (a standard for encoding a JSON object).
 
 ---
 
@@ -507,7 +509,7 @@ You could also use `from starlette.websockets import WebSocket`.
 **FastAPI** provides the same `WebSocket` directly just as a convenience for you, the developer. But it comes directly from Starlette.
 ```
 
-verdict: correct / partly / incorrect
+verdict: partly - both import paths are supported by the chunk's note, but the answer is thin; judgment call between partly and correct.
 
 ---
 
@@ -571,7 +573,7 @@ var ws = new WebSocket("ws://localhost:8000/ws");
 """
 ```
 
-verdict: correct / partly / incorrect
+verdict: correct - terse but supported.
 
 ---
 
@@ -635,7 +637,7 @@ You can add more than one event handler function.
 And your application won't start receiving requests until all the `startup` event handlers have completed.
 ```
 
-verdict: correct / partly / incorrect
+verdict: partly - describes the deprecated on_event("startup") method rather than lifespan events; the code has a comment where the body should be.
 
 ---
 
@@ -702,7 +704,7 @@ So, we declare the event handler function with standard `def` instead of `async 
 ///
 ```
 
-verdict: correct / partly / incorrect
+verdict: partly - describes the deprecated on_event("shutdown") method; the reference answer is a lifespan context manager with code after yield.
 
 ---
 
@@ -728,7 +730,7 @@ Notice that the encryption of the communication happens at the **TCP level**, no
 ///
 ```
 
-verdict: correct / partly / incorrect
+verdict: correct
 
 ---
 
@@ -758,6 +760,8 @@ This will start the sub-application in the specified path.
 **Cited Sources & Chunk Content**:
 *(No cited sources)*
 
-verdict: correct / partly / incorrect
+verdict: incorrect - nothing was cited; the answer invents a pyproject.toml [tool.fastapi] entrypoint setup instead of mounting a sub-application with app.mount().
 
 ---
+
+Tally: 7 correct, 5 partly, 3 incorrect (n=15). Note: v013 and v014 cite the expected page but describe the deprecated on_event method; v001, v006 and v017 answer a different question than the one asked.
