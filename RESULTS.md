@@ -154,3 +154,61 @@ Comparison of the cosine gate (`MIN_SCORE = 0.60` on `top_vector_score`) vs the 
    - **v2**: Lowest answerable top score was **0.682** (`v015`), whereas the highest unanswerable top score was **0.755** (`v030`).
 5. **Reranker Candidate Ceiling**: The reranker re-scores only the top 20 candidates returned by hybrid-bm25; it cannot recover recall for items absent from this pool. As a result, Hit@5 was unchanged on both v1 (0.9355) and v2 (0.9000). For example, `q007` had no expected-page chunk anywhere among the 20 candidates, and `q015` had its best expected chunk reranked to rank 6 (score 0.6167), just missing the top 5.
 6. **Rerank Gate Calibration**: The rerank refusal threshold (0.502152) is set by the single lowest v1 answerable score (`q011`). While it achieved zero false refusals on both v1 (0/31) and v2 (0/20) and improved unanswerable refusal from ~36-44% to ~55%, setting a gate threshold based on the minimum of a small sample carries variance and calibration risks on larger distributions.
+
+---
+
+## Answer quality (end-to-end, local Llama 3.1 8B)
+
+Pipeline: default /ask configuration (hybrid-BM25, k=5, cosine gate 0.60 on
+top_vector_score, no reranker, local llama31-rag, temperature 0). One run per
+set; a 5-question rerun gave identical answers and refusal outcomes. Raw
+results: eval/baselines/answers-v1.json, answers-v2.json.
+
+| | v1 (development) | v2 (held-out) |
+|---|---|---|
+| Answerable questions | 31 | 20 |
+| Expected page in top 5 | 29 | 18 |
+| Refused although expected page was retrieved | 3 (2 after manual review) | 1 |
+| Answered, expected page cited | 23 of 26 | 13 of 17 |
+| Unanswerable questions refused | 9 of 9 | 11 of 11 |
+| Mean / max latency | 18.5 s / 63.7 s | 13.3 s / 35.4 s |
+
+Unanswerable refusals here count both the cosine gate and the model's own refusal; the gate alone refused about 36-44% (see gate analysis above).
+
+Refusals: of the 4 refusals reviewed by hand, 3 were real false refusals (q011,
+q024, v016: the answer was in the retrieved chunks) and 1 was defensible (q002:
+the OAuth2PasswordBearer setup was not in the chunks). Reviews are in
+eval/reviews/false-refusals.md.
+
+Answer correctness (manual review of samples; first 15 answered questions by id
+in each set, plus the 2 flagged v1 answers; not random):
+
+| Sample | Correct | Partly | Incorrect | n |
+|---|---|---|---|---|
+| v1 | 7 | 4 | 4 | 15 |
+| v1 flagged (answers with a warning) | 0 | 2 | 0 | 2 |
+| v2 | 7 | 5 | 3 | 15 |
+
+Method note: these verdicts are first-pass drafts written by Claude and checked
+by the author against each cited chunk. This departs from the pre-registered
+protocol (author-only scoring). No LLM judged any answer without author review.
+
+Findings:
+- "Cites an expected page" overstates correctness: q003, q010, q018 (v1) and
+  v013, v014 (v2) cite an expected page but are incorrect or only partly right
+  (a misread example, ge/le instead of gt/lt, advice reversed, deprecated
+  on_event method instead of lifespan).
+- The model sometimes answers a different question than the one asked (v1:
+  q003, q010; v2: v001, v006, v017) and sometimes invents code not in the
+  context (q012, q015, v017).
+- The "code block not found in cited sources" warning caught real deviations in
+  both flagged answers (q021, q038).
+- Some answers cite nothing (q013, q015, v003, v017); those could not be checked
+  against retrieved text.
+- Some retrieved top-5 sets contain duplicate text (q039: 2 identical chunks,
+  q040: 4 identical chunks; both unanswerable questions).
+
+Limitations: 15-answer samples (one answer is 6.7 percentage points) and not
+random; unanswerable refusals come from the cosine gate and the model's own
+refusal habit, which also produced the false refusals; the 4 reviewed false
+refusals are the only ones examined, 3 of them real.
