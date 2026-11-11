@@ -1,5 +1,6 @@
 import argparse
 from dataclasses import asdict, dataclass
+import logging
 import re
 import sys
 from typing import Any, Dict, List, Optional, Tuple
@@ -8,6 +9,8 @@ from rank_bm25 import BM25Okapi
 import snowballstemmer
 
 from db.connection import get_db_connection
+
+logger = logging.getLogger(__name__)
 
 # Standard Snowball / NLTK English stopwords list (alphanumeric tokens)
 ENGLISH_STOPWORDS = frozenset({
@@ -73,6 +76,8 @@ class BM25Index:
 
     def __init__(self, conn=None, raw_chunks: Optional[List[Dict[str, Any]]] = None):
         self.chunks: List[ChunkRecord] = []
+        self.corpus_token_sets: List[set[str]] = []
+        self.bm25: Optional[BM25Okapi] = None
         if raw_chunks is not None:
             self._build_from_records(raw_chunks)
         else:
@@ -92,7 +97,14 @@ class BM25Index:
             index_text = f"{rec.heading_path}\n{rec.content}"
             corpus_tokens.append(tokenize(index_text))
 
+        if not corpus_tokens:
+            logger.warning("BM25 index is empty: run ingestion first")
+            self.corpus_token_sets = []
+            self.bm25 = None
+            return
+
         self.corpus_token_sets = [set(toks) for toks in corpus_tokens]
+        # BM25Okapi default parameters: k1=1.5, b=0.75
         self.bm25 = BM25Okapi(corpus_tokens, k1=1.5, b=0.75)
 
     def _load_chunks_and_build(self, conn=None):
@@ -116,28 +128,15 @@ class BM25Index:
                 """
                 cur.execute(sql)
                 rows = cur.fetchall()
-
-                corpus_tokens: List[List[str]] = []
-                for row in rows:
-                    rec = ChunkRecord(
-                        chunk_id=row["chunk_id"],
-                        source_path=row["source_path"],
-                        title=row["title"],
-                        heading_path=row["heading_path"],
-                        content=row["content"],
-                    )
-                    self.chunks.append(rec)
-                    index_text = f"{rec.heading_path}\n{rec.content}"
-                    corpus_tokens.append(tokenize(index_text))
-
-                self.corpus_token_sets = [set(toks) for toks in corpus_tokens]
-                # BM25Okapi default parameters: k1=1.5, b=0.75
-                self.bm25 = BM25Okapi(corpus_tokens, k1=1.5, b=0.75)
+                self._build_from_records(rows)
         finally:
             if close_conn:
                 conn.close()
 
     def search(self, query: str, k: int = 5) -> List[BM25SearchResult]:
+        if self.bm25 is None or not self.chunks:
+            return []
+
         query_tokens = tokenize(query)
         if not query_tokens:
             return []

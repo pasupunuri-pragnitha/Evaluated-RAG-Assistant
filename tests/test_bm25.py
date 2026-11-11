@@ -1,5 +1,6 @@
+import logging
 import pytest
-from retrieval.bm25 import BM25Index, tokenize, search
+from retrieval.bm25 import BM25Index, tokenize
 
 
 def test_bm25_tokenizer_stopwords_and_stemming():
@@ -28,12 +29,32 @@ def test_bm25_tokenizer_stopwords_and_stemming():
 
 
 def test_bm25_empty_query_returns_empty_list():
+    raw_chunks = [
+        {
+            "id": "c-001",
+            "source_path": "test/path.md",
+            "title": "Test Title",
+            "heading_path": "Test Heading",
+            "content": "FastAPI optional query parameters",
+        }
+    ]
+    index = BM25Index(raw_chunks=raw_chunks)
     # Empty string
-    assert search("", k=5) == []
+    assert index.search("", k=5) == []
     # Whitespace only
-    assert search("   \t\n  ", k=5) == []
+    assert index.search("   \t\n  ", k=5) == []
     # Only stopwords
-    assert search("the is in at and", k=5) == []
+    assert index.search("the is in at and", k=5) == []
+
+
+def test_bm25_empty_corpus_returns_empty_list(caplog):
+    with caplog.at_level(logging.WARNING):
+        index = BM25Index(raw_chunks=[])
+    assert index.search("anything") == []
+    assert any(
+        "BM25 index is empty: run ingestion first" in record.message
+        for record in caplog.records
+    )
 
 
 def test_bm25_deterministic_tie_break():
