@@ -1,5 +1,7 @@
 # Evaluated RAG Assistant
 
+[![Tests](https://github.com/pasupunuri-pragnitha/Evaluated-RAG-Assistant/actions/workflows/tests.yml/badge.svg)](https://github.com/pasupunuri-pragnitha/Evaluated-RAG-Assistant/actions/workflows/tests.yml)
+
 A retrieval-augmented question-answering assistant over the FastAPI
 documentation, built on PostgreSQL + pgvector. It answers with citations and
 refuses when the evidence is weak. The project's focus is measurement: every
